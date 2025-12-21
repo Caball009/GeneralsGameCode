@@ -302,12 +302,18 @@ void FiringTracker::speedUp()
 }
 
 //-------------------------------------------------------------------------------------------------
-void FiringTracker::coolDown()
+void FiringTracker::forceCoolDown()
+{
+	coolDown(TRUE);
+}
+
+//-------------------------------------------------------------------------------------------------
+void FiringTracker::coolDown(Bool forceCoolDown)
 {
 	ModelConditionFlags clr, set;
 
-	if( getObject()->testWeaponBonusCondition( WEAPONBONUSCONDITION_CONTINUOUS_FIRE_FAST )
-	 || getObject()->testWeaponBonusCondition( WEAPONBONUSCONDITION_CONTINUOUS_FIRE_MEAN ))
+	if( !forceCoolDown && (getObject()->testWeaponBonusCondition( WEAPONBONUSCONDITION_CONTINUOUS_FIRE_FAST )
+	 || getObject()->testWeaponBonusCondition( WEAPONBONUSCONDITION_CONTINUOUS_FIRE_MEAN )))
 	{
 
 		// Straight to zero from wherever it is

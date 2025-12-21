@@ -2225,6 +2225,11 @@ void Object::setDisabledUntil( DisabledType type, UnsignedInt frame )
 	// This will only be called if we were NOT disabled before coming into this function.
 	if (edgeCase) {
 		onDisabledEdge(true);
+
+#if !RETAIL_COMPATIBLE_CRC
+		if (m_firingTracker)
+			m_firingTracker->forceCoolDown();
+#endif
 	}
 }
 
