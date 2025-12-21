@@ -2226,10 +2226,10 @@ void Object::setDisabledUntil( DisabledType type, UnsignedInt frame )
 	if (edgeCase) {
 		onDisabledEdge(true);
 
-#if !RETAIL_COMPATIBLE_CRC
+//#if !RETAIL_COMPATIBLE_CRC
 		if (m_firingTracker)
 			m_firingTracker->forceCoolDown();
-#endif
+//#endif
 	}
 }
 
