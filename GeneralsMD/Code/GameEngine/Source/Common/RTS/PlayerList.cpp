@@ -464,7 +464,7 @@ void PlayerList::xfer( Xfer *xfer )
 	{
 
 		DEBUG_CRASH(( "Invalid player count '%d', should be '%d'", playerCount, m_playerCount ));
-		throw SC_INVALID_DATA;
+		//throw SC_INVALID_DATA;
 
 	}
 

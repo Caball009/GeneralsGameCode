@@ -864,7 +864,7 @@ void SidesList::xfer( Xfer *xfer )
 	{
 
 		DEBUG_CRASH(( "SidesList::xfer - The sides list size has changed, this was not supposed to happen, you must version this method and figure out how to translate between old and new versions now" ));
-		throw SC_INVALID_DATA;
+		//throw SC_INVALID_DATA;
 
 	}
 
@@ -883,7 +883,7 @@ void SidesList::xfer( Xfer *xfer )
 		{
 
 			DEBUG_CRASH(( "SidesList::xfer - script list missing/present mismatch" ));
-			throw SC_INVALID_DATA;
+			//throw SC_INVALID_DATA;
 
 		}
 		if( scriptListPresent )

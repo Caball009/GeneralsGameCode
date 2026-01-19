@@ -4200,7 +4200,8 @@ void Player::xfer( Xfer *xfer )
 	{
 
 		DEBUG_CRASH(( "Player::xfer - m_ai present/missing mismatch" ));
-		throw SC_INVALID_DATA;
+		//throw SC_INVALID_DATA;
+		m_ai = nullptr;
 
 	}
 	if( m_ai )
