@@ -111,11 +111,9 @@ Bool LANAPI::getProductInfoStrings(WideChar(&input)[201], UnicodeString*(&output
 
 UnsignedInt LANAPI::buildProductInfoFlags()
 {
-	const UnsignedInt flags = GameSlot::ProductInfo::NO_RETAIL
+	return GameSlot::ProductInfo::NO_RETAIL
 		| (GameSlot::ProductInfo::SHELLMAP_ENABLED * TheGlobalData->m_shellMapOn)
 		| (GameSlot::ProductInfo::ZERO_MAPS_STARTED * (TheGameLogic->getStartedGamesCount() == 0));
-
-	return flags;
 }
 
 void LANAPI::setProductInfoFromLocalData(GameSlot &slot)
