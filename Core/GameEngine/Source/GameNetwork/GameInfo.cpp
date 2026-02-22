@@ -1498,7 +1498,7 @@ Bool ParseAsciiStringToGameInfo(GameInfo *game, AsciiString options)
 			// retain the product information if a slot is still occupied by the same player
 			if (game->getConstSlot(i)->getState() == SLOT_PLAYER && newSlot[i].getState() == SLOT_PLAYER)
 			{
-				DEBUG_ASSERTCRASH(game->getConstSlot(i)->getIP() == newSlot[i].getIP(), "Game slot transition was unexpected");
+				DEBUG_ASSERTCRASH(game->getConstSlot(i)->getIP() == newSlot[i].getIP(), ("Game slot transition was unexpected"));
 				newSlot[i].setProductInfo(game->getConstSlot(i)->getProductInfo());
 			}
 
