@@ -184,7 +184,7 @@ struct LANMessage
 		// - When a player detects a new game host in the lobby, it sends a product info request to that host.
 		// - If the host responds with an acknowledgement, it is considered patched.
 		// 3. players in pre-match:
-		// - When a player joins a match, it sends a product info request to all existing players in that match.
+		// - When a player joins a match, it sends a product info request to all players in that match.
 		// - Existing players treat this request as confirmation that the joining player is patched (no explicit acknowledgement required).
 		MSG_GAME_REQUEST_PRODUCT_INFO = 1000,
 		MSG_GAME_RESPONSE_PRODUCT_INFO,
