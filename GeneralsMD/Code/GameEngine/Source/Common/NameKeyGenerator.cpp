@@ -124,67 +124,40 @@ AsciiString NameKeyGenerator::keyToName(NameKeyType key)
 
 //-------------------------------------------------------------------------------------------------
 #if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
-// TheSuperHackers @info xezon 04/09/2025 This key reservation is required for CRC compatibility,
-// because the name keys are somehow CRC relevant. It was originally used by the file exist cache
-// of the file system in Zero Hour.
-Bool NameKeyGenerator::addReservedKey()
+// TheSuperHackers @bugfix Caball009 24/02/2026 Originally the game would hash three files
+// for the file exist cache of the file system in Zero Hour.
+// TheScienceStore and TheUpgradeCenter rely on having the exact same name key IDs across all clients.
+// That means that we still need to hash 3 dummy strings to keep the name key IDs synchronized with retail.
+void NameKeyGenerator::syncNameKeyID()
 {
-	switch (m_nextID)
-	{
-	case 97: nameToLowercaseKeyImpl("Data\\English\\Language9x.ini"); return true;
-	case 98: nameToLowercaseKeyImpl("Data\\Audio\\Tracks\\English\\GLA_02.mp3"); return true;
-	case 99: nameToLowercaseKeyImpl("Data\\Audio\\Tracks\\GLA_02.mp3"); return true;
-	}
-	return false;
+	nameToKey("TSH_dummy_string_1");
+	nameToKey("TSH_dummy_string_2");
+	nameToKey("TSH_dummy_string_3");
 }
 #endif
 
 //-------------------------------------------------------------------------------------------------
 NameKeyType NameKeyGenerator::nameToKey(const AsciiString& name)
 {
-	const NameKeyType key = nameToKeyImpl(name);
-
-#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
-	while (addReservedKey());
-#endif
-
-	return key;
+	return nameToKeyImpl(name);
 }
 
 //-------------------------------------------------------------------------------------------------
 NameKeyType NameKeyGenerator::nameToLowercaseKey(const AsciiString& name)
 {
-	const NameKeyType key = nameToLowercaseKeyImpl(name);
-
-#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
-	while (addReservedKey());
-#endif
-
-	return key;
+	return nameToLowercaseKeyImpl(name);
 }
 
 //-------------------------------------------------------------------------------------------------
 NameKeyType NameKeyGenerator::nameToKey(const char* name)
 {
-	const NameKeyType key = nameToKeyImpl(name);
-
-#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
-	while (addReservedKey());
-#endif
-
-	return key;
+	return nameToKeyImpl(name);
 }
 
 //-------------------------------------------------------------------------------------------------
 NameKeyType NameKeyGenerator::nameToLowercaseKey(const char *name)
 {
-	const NameKeyType key = nameToLowercaseKeyImpl(name);
-
-#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
-	while (addReservedKey());
-#endif
-
-	return key;
+	return nameToLowercaseKeyImpl(name);
 }
 
 //-------------------------------------------------------------------------------------------------
