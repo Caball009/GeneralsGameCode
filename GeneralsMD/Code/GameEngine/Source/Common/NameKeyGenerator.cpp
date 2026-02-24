@@ -123,7 +123,8 @@ AsciiString NameKeyGenerator::keyToName(NameKeyType key)
 }
 
 //-------------------------------------------------------------------------------------------------
-#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
+#if RETAIL_COMPATIBLE_CRC
+#if RTS_ZEROHOUR
 // TheSuperHackers @bugfix Caball009 24/02/2026 Originally the game would hash three files
 // for the file exist cache of the file system in Zero Hour.
 // TheScienceStore and TheUpgradeCenter rely on having the exact same name key IDs across all clients.
@@ -133,6 +134,13 @@ void NameKeyGenerator::syncNameKeyID()
 	nameToKey("TSH_dummy_string_1");
 	nameToKey("TSH_dummy_string_2");
 	nameToKey("TSH_dummy_string_3");
+}
+#endif
+void NameKeyGenerator::verifyNameKeyID(UnsignedInt expectedNextID) const
+{
+	// this should only be called before the initialization of TheScienceStore and TheUpgradeCenter in GameEngine::init
+	DEBUG_ASSERTCRASH(expectedNextID == m_nextID,
+		("Retail client expects items to start with name key ID %d for unmodded files, but starts with %d", expectedNextID, m_nextID));
 }
 #endif
 
