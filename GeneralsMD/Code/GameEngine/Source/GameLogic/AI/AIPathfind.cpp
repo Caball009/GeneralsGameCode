@@ -8143,7 +8143,13 @@ struct TightenPathStruct
 	if (d->layer != to->getLayer()) {
 		return 0; // abort.
 	}
-	Coord3D pos;
+
+	// TheSuperHackers @bugfix Caball009 27/02/2026 This was originally uninitialized.
+	// The uninitialized values that retail uses here are usually close to zero as long as foundDest == false, otherwise it uses the values of destPos.
+	Coord3D pos = d->destPos;
+	if (!d->foundDest)
+		pos.zero();
+
 	if (!TheAI->pathfinder()->checkForAdjust(d->obj, *d->locomotorSet, true, to_x, to_y, to->getLayer(), d->radius, d->center, &pos, nullptr))
 	{
 		return 0;	// bail early
