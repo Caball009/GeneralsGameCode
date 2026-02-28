@@ -350,7 +350,7 @@ class MilesAudioManagerDummy : public MilesAudioManager
 	virtual AsciiString getMusicTrackName() const { return ""; }
 	//virtual void openDevice() {}
 	//virtual void closeDevice() {}
-	virtual void* getDevice() { return nullptr; }
+	//virtual void* getDevice() { return nullptr; }
 	virtual void notifyOfAudioCompletion(UnsignedInt audioCompleted, UnsignedInt flags) {}
 	virtual UnsignedInt getProviderCount() const { return 0; };
 	virtual AsciiString getProviderName(UnsignedInt providerNum) const { return ""; }
