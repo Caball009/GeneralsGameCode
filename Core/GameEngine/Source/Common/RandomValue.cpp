@@ -56,11 +56,12 @@ static UnsignedInt theGameAudioSeed[6] =
     0xf22d0e56L, 0x883126e9L, 0xc624dd2fL, 0x702c49cL, 0x9e353f7dL, 0x6fdf3b64L
 };
 
-static UnsignedInt theGameLogicBaseSeed = 0;
 static UnsignedInt theGameLogicSeed[6] =
 {
     0xf22d0e56L, 0x883126e9L, 0xc624dd2fL, 0x702c49cL, 0x9e353f7dL, 0x6fdf3b64L
 };
+
+static UnsignedInt theGameLogicBaseSeed = 0;
 
 // Add with carry. SUM is replaced with A + B + C, C is replaced with 1  if there was a carry, 0 if there wasn't.
 // A carry occurred if the sum is less than one of the inputs. This is addition, so carry can never be  more than one.
@@ -137,7 +138,7 @@ void InitRandom()
 	seedRandom(0, theGameLogicSeed);
 	theGameLogicBaseSeed = 0;
 #else
-	time_t seconds = time( nullptr );
+	const time_t seconds = time( nullptr );
 
 	seedRandom(seconds, theGameClientSeed);
 	seedRandom(seconds, theGameAudioSeed);
@@ -148,13 +149,17 @@ void InitRandom()
 
 void InitRandom( UnsignedInt seed )
 {
+#ifdef DETERMINISTIC
+	seed = 0;
+#endif
+
 	seedRandom(seed, theGameClientSeed);
 	seedRandom(seed, theGameAudioSeed);
 	seedRandom(seed, theGameLogicSeed);
 	theGameLogicBaseSeed = seed;
 
 #ifdef DEBUG_RANDOM_LOGIC
-	DEBUG_LOG(( "InitRandom %08lx",seed));
+	DEBUG_LOG(("InitRandom %08lx", seed));
 #endif
 }
 
