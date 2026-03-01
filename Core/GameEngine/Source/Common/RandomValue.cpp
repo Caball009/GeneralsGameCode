@@ -130,24 +130,6 @@ static void seedRandom(UnsignedInt SEED, UnsignedInt *seed)
 	seed[5] = ax;                   /* mov     seed+20,eax                  */
 }
 
-//
-// It is necessary to separate the GameClient and GameLogic usage of random
-// values to ensure that the GameLogic remains deterministic, regardless
-// of the effects displayed on the GameClient.
-//
-
-UnsignedInt GetGameLogicRandomSeed()
-{
-	return theGameLogicBaseSeed;
-}
-
-UnsignedInt GetGameLogicRandomSeedCRC()
-{
-	CRC c;
-	c.computeCRC(theGameLogicSeed, 6*sizeof(UnsignedInt));
-	return c.get();
-}
-
 void InitRandom()
 {
 #ifdef DETERMINISTIC
@@ -175,6 +157,24 @@ void InitRandom( UnsignedInt seed )
 #ifdef DEBUG_RANDOM_LOGIC
 DEBUG_LOG(( "InitRandom %08lx",seed));
 #endif
+}
+
+//
+// It is necessary to separate the GameClient and GameLogic usage of random
+// values to ensure that the GameLogic remains deterministic, regardless
+// of the effects displayed on the GameClient.
+//
+
+UnsignedInt GetGameLogicRandomSeed()
+{
+	return theGameLogicBaseSeed;
+}
+
+UnsignedInt GetGameLogicRandomSeedCRC()
+{
+	CRC c;
+	c.computeCRC(theGameLogicSeed, 6*sizeof(UnsignedInt));
+	return c.get();
 }
 
 //
