@@ -34,8 +34,6 @@
 #include "Common/Debug.h"
 #include "GameLogic/GameLogic.h"
 
-//#define DETERMINISTIC				// to allow repetition for debugging
-
 #undef DEBUG_RANDOM_CLIENT
 #undef DEBUG_RANDOM_AUDIO
 #undef DEBUG_RANDOM_LOGIC
@@ -43,6 +41,7 @@
 //#define DEBUG_RANDOM_CLIENT
 //#define DEBUG_RANDOM_AUDIO
 //#define DEBUG_RANDOM_LOGIC
+//#define DETERMINISTIC	      // to allow repetition for debugging
 
 static const Real theMultFactor = 1.0f / static_cast<float>(UINT_MAX - 1);
 
@@ -63,14 +62,14 @@ static UnsignedInt theGameLogicSeed[6] =
     0xf22d0e56L, 0x883126e9L, 0xc624dd2fL, 0x702c49cL, 0x9e353f7dL, 0x6fdf3b64L
 };
 
-// Add with carry. SUM is replaced with A + B + C, C is replaced with 1  if there was a carry, 0 if there wasn't. A carry occurred if the sum is  less than one of the inputs. This is addition, so carry can never be  more than one.
-#define ADC(SUM, A, B, C)   SUM = (A) + (B) + (C); C = ((SUM < (A)) || (SUM < (B)))
+// Add with carry. SUM is replaced with A + B + C, C is replaced with 1  if there was a carry, 0 if there wasn't.
+// A carry occurred if the sum is less than one of the inputs. This is addition, so carry can never be  more than one.
+#define ADC(SUM, A, B, C) SUM = (A) + (B) + (C); C = ((SUM < (A)) || (SUM < (B)))
 
-static UnsignedInt randomValue(UnsignedInt *seed)
+static UnsignedInt randomValue(UnsignedInt (&seed)[6])
 {
 	UnsignedInt ax;
 	UnsignedInt c = 0;
-
 
 	ADC(ax, seed[5], seed[4], c);   /*  mov     ax,seed+20  */
 	/*  add     ax,seed+16  */
@@ -106,10 +105,11 @@ static UnsignedInt randomValue(UnsignedInt *seed)
 			}
 		}
 	}
-	return(ax);
+
+	return ax;
 }
 
-static void seedRandom(UnsignedInt SEED, UnsignedInt *seed)
+static void seedRandom(UnsignedInt SEED, UnsignedInt (&seed)[6])
 {
 	UnsignedInt ax;
 
@@ -139,8 +139,8 @@ void InitRandom()
 #else
 	time_t seconds = time( nullptr );
 
-	seedRandom(seconds, theGameAudioSeed);
 	seedRandom(seconds, theGameClientSeed);
+	seedRandom(seconds, theGameAudioSeed);
 	seedRandom(seconds, theGameLogicSeed);
 	theGameLogicBaseSeed = seconds;
 #endif
@@ -148,8 +148,8 @@ void InitRandom()
 
 void InitRandom( UnsignedInt seed )
 {
-	seedRandom(seed, theGameAudioSeed);
 	seedRandom(seed, theGameClientSeed);
+	seedRandom(seed, theGameAudioSeed);
 	seedRandom(seed, theGameLogicSeed);
 	theGameLogicBaseSeed = seed;
 
@@ -172,7 +172,7 @@ UnsignedInt GetGameLogicRandomSeed()
 UnsignedInt GetGameLogicRandomSeedCRC()
 {
 	CRC c;
-	c.computeCRC(theGameLogicSeed, 6*sizeof(UnsignedInt));
+	c.computeCRC(theGameLogicSeed, sizeof(theGameLogicSeed));
 	return c.get();
 }
 
@@ -205,7 +205,7 @@ Real GetGameClientRandomValueReal( Real lo, Real hi, const char *file, int line 
 		return hi;
 
 	const Real delta = hi - lo;
-	const Real rval = ((Real)(randomValue(theGameClientSeed)) * theMultFactor ) * delta + lo;
+	const Real rval = ((Real)(randomValue(theGameClientSeed)) * theMultFactor) * delta + lo;
 
 #ifdef DEBUG_RANDOM_CLIENT
 	DEBUG_LOG(( "%d: GetGameClientRandomValueReal = %f, %s line %d",
@@ -245,7 +245,7 @@ Real GetGameAudioRandomValueReal( Real lo, Real hi, const char *file, int line )
 		return hi;
 
 	const Real delta = hi - lo;
-	const Real rval = ((Real)(randomValue(theGameAudioSeed)) * theMultFactor ) * delta + lo;
+	const Real rval = ((Real)(randomValue(theGameAudioSeed)) * theMultFactor) * delta + lo;
 
 #ifdef DEBUG_RANDOM_AUDIO
 	DEBUG_LOG(( "%d: GetGameAudioRandomValueReal = %f, %s line %d",
@@ -299,7 +299,7 @@ Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line )
 	const Real delta = hi - lo;
 #endif
 
-	const Real rval = ((Real)(randomValue(theGameLogicSeed)) * theMultFactor ) * delta + lo;
+	const Real rval = ((Real)(randomValue(theGameLogicSeed)) * theMultFactor) * delta + lo;
 
 #ifdef DEBUG_RANDOM_LOGIC
 	DEBUG_LOG(( "%d: GetGameLogicRandomValueReal = %f, %s line %d",
