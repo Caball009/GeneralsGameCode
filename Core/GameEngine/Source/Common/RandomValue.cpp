@@ -28,7 +28,6 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
 
-
 #include "Lib/BaseType.h"
 #include "Common/RandomValue.h"
 #include "Common/crc.h"
@@ -36,7 +35,6 @@
 #include "GameLogic/GameLogic.h"
 
 //#define DETERMINISTIC				// to allow repetition for debugging
-
 
 #undef DEBUG_RANDOM_CLIENT
 #undef DEBUG_RANDOM_AUDIO
@@ -154,8 +152,9 @@ void InitRandom( UnsignedInt seed )
 	seedRandom(seed, theGameClientSeed);
 	seedRandom(seed, theGameLogicSeed);
 	theGameLogicBaseSeed = seed;
+
 #ifdef DEBUG_RANDOM_LOGIC
-DEBUG_LOG(( "InitRandom %08lx",seed));
+	DEBUG_LOG(( "InitRandom %08lx",seed));
 #endif
 }
 
@@ -190,12 +189,10 @@ Int GetGameClientRandomValue( int lo, int hi, const char *file, int line )
 
 	rval = ((Int)(randomValue(theGameClientSeed) % delta)) + lo;
 
-/**/
 #ifdef DEBUG_RANDOM_CLIENT
-DEBUG_LOG(( "%d: GetGameClientRandomValue = %d (%d - %d), %s line %d",
-				TheGameLogic ? TheGameLogic->getFrame() : -1, rval, lo, hi, file, line ));
+	DEBUG_LOG(( "%d: GetGameClientRandomValue = %d (%d - %d), %s line %d",
+		TheGameLogic ? TheGameLogic->getFrame() : -1, rval, lo, hi, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -214,12 +211,11 @@ Real GetGameClientRandomValueReal( Real lo, Real hi, const char *file, int line 
 	rval = ((Real)(randomValue(theGameClientSeed)) * theMultFactor ) * delta + lo;
 
 	DEBUG_ASSERTCRASH( rval >= lo && rval <= hi, ("Bad random val"));
-/**/
+
 #ifdef DEBUG_RANDOM_CLIENT
-DEBUG_LOG(( "%d: GetGameClientRandomValueReal = %f, %s line %d",
-					TheGameLogic->getFrame(), rval, file, line ));
+	DEBUG_LOG(( "%d: GetGameClientRandomValueReal = %f, %s line %d",
+		TheGameLogic->getFrame(), rval, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -237,12 +233,10 @@ Int GetGameAudioRandomValue( int lo, int hi, const char *file, int line )
 
 	rval = ((Int)(randomValue(theGameAudioSeed) % delta)) + lo;
 
-/**/
 #ifdef DEBUG_RANDOM_AUDIO
-DEBUG_LOG(( "%d: GetGameAudioRandomValue = %d (%d - %d), %s line %d",
-				TheGameLogic->getFrame(), rval, lo, hi, file, line ));
+	DEBUG_LOG(( "%d: GetGameAudioRandomValue = %d (%d - %d), %s line %d",
+		TheGameLogic->getFrame(), rval, lo, hi, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -261,12 +255,11 @@ Real GetGameAudioRandomValueReal( Real lo, Real hi, const char *file, int line )
 	rval = ((Real)(randomValue(theGameAudioSeed)) * theMultFactor ) * delta + lo;
 
 	DEBUG_ASSERTCRASH( rval >= lo && rval <= hi, ("Bad random val"));
-/**/
+
 #ifdef DEBUG_RANDOM_AUDIO
-DEBUG_LOG(( "%d: GetGameAudioRandomValueReal = %f, %s line %d",
-					TheGameLogic->getFrame(), rval, file, line ));
+	DEBUG_LOG(( "%d: GetGameAudioRandomValueReal = %f, %s line %d",
+		TheGameLogic->getFrame(), rval, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -297,12 +290,10 @@ Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line )
 
 	//rval = temp + lo;
 
-/**/
 #ifdef DEBUG_RANDOM_LOGIC
-DEBUG_LOG(( "%d: GetGameLogicRandomValue = %d (%d - %d), %s line %d",
-				 TheGameLogic->getFrame(), rval, lo, hi, file, line ));
+	DEBUG_LOG(( "%d: GetGameLogicRandomValue = %d (%d - %d), %s line %d",
+		TheGameLogic->getFrame(), rval, lo, hi, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -321,12 +312,11 @@ Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line )
 	rval = ((Real)(randomValue(theGameLogicSeed)) * theMultFactor ) * delta + lo;
 
 	DEBUG_ASSERTCRASH( rval >= lo && rval <= hi, ("Bad random val"));
-/**/
+
 #ifdef DEBUG_RANDOM_LOGIC
-DEBUG_LOG(( "%d: GetGameLogicRandomValueReal = %f, %s line %d",
-					TheGameLogic->getFrame(), rval, file, line ));
+	DEBUG_LOG(( "%d: GetGameLogicRandomValueReal = %f, %s line %d",
+		TheGameLogic->getFrame(), rval, file, line ));
 #endif
-/**/
 
 	return rval;
 }
@@ -438,7 +428,6 @@ Real GameClientRandomVariable::getValue() const
 	}
 }
 
-
 //--------------------------------------------------------------------------------------------------------------
 // GameLogicRandomVariable
 //
@@ -483,5 +472,3 @@ Real GameLogicRandomVariable::getValue() const
 			return 0.0f;
 	}
 }
-
-
