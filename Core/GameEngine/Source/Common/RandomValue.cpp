@@ -43,7 +43,7 @@
 //#define DEBUG_RANDOM_LOGIC
 //#define DETERMINISTIC	      // to allow repetition for debugging
 
-static const Real theMultFactor = 1.0f / static_cast<float>(UINT_MAX - 1);
+static const Real theMultFactor = 1.0f / static_cast<float>(UINT_MAX);
 
 // Initial seed values.
 static UnsignedInt theGameClientSeed[6] =
