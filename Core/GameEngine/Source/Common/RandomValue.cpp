@@ -269,26 +269,13 @@ Real GetGameAudioRandomValueReal( Real lo, Real hi, const char *file, int line )
 //
 Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line )
 {
-	//Int delta = hi - lo + 1;
-	//Int rval;
-
-	//if (delta == 0)
-		//return hi;
-
-	//rval = ((Int)(randomValue(theGameLogicSeed) % delta)) + lo;
-
-	UnsignedInt delta = hi - lo + 1;
-	//UnsignedInt temp;
-	Int rval;
-
+	const UnsignedInt delta = hi - lo + 1;
 	if (delta == 0)
 		return hi;
 
-	rval = ((Int)(randomValue(theGameLogicSeed) % delta)) + lo;
-	//temp = randomValue(theGameLogicSeed);
-	//temp = temp % delta;
+	const Int rval = ((Int)(randomValue(theGameLogicSeed) % delta)) + lo;
 
-	//rval = temp + lo;
+	DEBUG_ASSERTCRASH(rval >= lo && rval <= hi, ("Bad random val"));
 
 #ifdef DEBUG_RANDOM_LOGIC
 	DEBUG_LOG(( "%d: GetGameLogicRandomValue = %d (%d - %d), %s line %d",
@@ -303,13 +290,11 @@ Int GetGameLogicRandomValue( int lo, int hi, const char *file, int line )
 //
 Real GetGameLogicRandomValueReal( Real lo, Real hi, const char *file, int line )
 {
-	Real delta = hi - lo;
-	Real rval;
-
+	const Real delta = hi - lo;
 	if (delta <= 0.0f)
 		return hi;
 
-	rval = ((Real)(randomValue(theGameLogicSeed)) * theMultFactor ) * delta + lo;
+	const Real rval = ((Real)(randomValue(theGameLogicSeed)) * theMultFactor ) * delta + lo;
 
 	DEBUG_ASSERTCRASH( rval >= lo && rval <= hi, ("Bad random val"));
 
