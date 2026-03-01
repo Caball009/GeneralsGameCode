@@ -39,12 +39,12 @@
 
 
 #undef DEBUG_RANDOM_CLIENT
-#undef DEBUG_RANDOM_LOGIC
 #undef DEBUG_RANDOM_AUDIO
+#undef DEBUG_RANDOM_LOGIC
 
 //#define DEBUG_RANDOM_CLIENT
-//#define DEBUG_RANDOM_LOGIC
 //#define DEBUG_RANDOM_AUDIO
+//#define DEBUG_RANDOM_LOGIC
 
 static const Real theMultFactor = 1.0f / (powf(2, 8 * sizeof(UnsignedInt)) - 1.0f);
 
