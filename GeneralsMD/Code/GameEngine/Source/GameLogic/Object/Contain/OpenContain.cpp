@@ -1507,9 +1507,20 @@ void OpenContain::processDamageToContained(Real percentDamage)
 	// TheSuperHackers @bugfix Caball009 11/03/2026 Use a temporary copy of the contain list to iterate over,
 	// because Object::attemptDamage in OpenContain::processDamageToContainedInternal may remove some or all elements from the list.
 
-	const std::vector<Object*> containCopy(m_containList.begin(), m_containList.end());
+	constexpr const UnsignedInt smallContainerSize = 16;
+	if (m_containListSize < smallContainerSize)
+	{
+		Object* containCopy[smallContainerSize];
+		std::copy(m_containList.begin(), m_containList.end(), containCopy);
 
-	processDamageToContainedInternal(&containCopy[0], containCopy.size(), percentDamage);
+		processDamageToContainedInternal(containCopy, m_containListSize, percentDamage);
+	}
+	else
+	{
+		const std::vector<Object*> containCopy(m_containList.begin(), m_containList.end());
+
+		processDamageToContainedInternal(&containCopy[0], containCopy.size(), percentDamage);
+	}
 
 #else
 
