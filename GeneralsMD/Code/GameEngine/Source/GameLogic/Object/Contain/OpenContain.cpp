@@ -1477,7 +1477,7 @@ void OpenContain::processDamageToContainedInternal(const ContainedItemsList* ite
 	{
 		Object *object = *it++;
 
-		//Calculate the damage to be inflicted on each unit.
+		// Calculate the damage to be inflicted on each unit.
 		Real damage = object->getBodyModule()->getMaxHealth() * percentDamage;
 
 		DamageInfo damageInfo;
@@ -1490,17 +1490,11 @@ void OpenContain::processDamageToContainedInternal(const ContainedItemsList* ite
 		if( !object->isEffectivelyDead() && killContained )
 			object->kill(); // in case we are carrying flame proof troops we have been asked to kill
 
-		// TheSuperHackers @info Calls to Object::attemptDamage and Object::kill will not remove
-		// the occupant from the host container straight away. Instead it will be removed when the
+		// TheSuperHackers @info Calls to Object::attemptDamage and Object::kill may not remove
+		// the occupant from the host container straight away. Instead it would be removed when the
 		// Object deletion is finalized in a Game Logic update. This will lead to strange behavior
 		// where the occupant will be removed after death with a delay. This behavior cannot be
 		// changed without breaking retail compatibility.
-
-		// TheSuperHackers @bugfix xezon 05/06/2025 Stop iterating when the list was cleared.
-		// This scenario can happen if the killed occupant(s) apply deadly damage on death
-		// to the host container, which then attempts to remove all remaining occupants
-		// on the death of the host container. This is reproducible by destroying a
-		// GLA Battle Bus with at least 2 half damaged GLA Terrorists inside.
 		if (listSize != items->size())
 		{
 			DEBUG_ASSERTCRASH( listSize == 0, ("List is expected empty") );
