@@ -1467,7 +1467,7 @@ void OpenContain::orderAllPassengersToHackInternet( CommandSourceType commandSou
 //-------------------------------------------------------------------------------------------------
 void OpenContain::processDamageToContainedInternal(Object* const* objects, size_t size, Real percentDamage)
 {
-	const OpenContainModuleData* data = getOpenContainModuleData();
+	const bool isBurnedDeathToUnits = getOpenContainModuleData()->m_isBurnedDeathToUnits;
 	const bool killContained = percentDamage == 1.0f;
 
 	for (size_t i = 0; i < size; ++i)
@@ -1479,7 +1479,7 @@ void OpenContain::processDamageToContainedInternal(Object* const* objects, size_
 
 		DamageInfo damageInfo;
 		damageInfo.in.m_damageType = DAMAGE_UNRESISTABLE;
-		damageInfo.in.m_deathType = data->m_isBurnedDeathToUnits ? DEATH_BURNED : DEATH_NORMAL;
+		damageInfo.in.m_deathType = isBurnedDeathToUnits ? DEATH_BURNED : DEATH_NORMAL;
 		damageInfo.in.m_sourceID = getObject()->getID();
 		damageInfo.in.m_amount = damage;
 		object->attemptDamage( &damageInfo );
@@ -1535,7 +1535,7 @@ void OpenContain::processDamageToContained(Real percentDamage)
 	// on death of a unit to another unit in the host container. If this functionality
 	// is desired, then this implementation needs to be revisited.
 
-	const OpenContainModuleData* data = getOpenContainModuleData();
+	const bool isBurnedDeathToUnits = getOpenContainModuleData()->m_isBurnedDeathToUnits;
 	const bool killContained = percentDamage == 1.0f;
 
 	ContainedItemsList list;
@@ -1555,7 +1555,7 @@ void OpenContain::processDamageToContained(Real percentDamage)
 
 		DamageInfo damageInfo;
 		damageInfo.in.m_damageType = DAMAGE_UNRESISTABLE;
-		damageInfo.in.m_deathType = data->m_isBurnedDeathToUnits ? DEATH_BURNED : DEATH_NORMAL;
+		damageInfo.in.m_deathType = isBurnedDeathToUnits ? DEATH_BURNED : DEATH_NORMAL;
 		damageInfo.in.m_sourceID = getObject()->getID();
 		damageInfo.in.m_amount = damage;
 		object->attemptDamage( &damageInfo );
