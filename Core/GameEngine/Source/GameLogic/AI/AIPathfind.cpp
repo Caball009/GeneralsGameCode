@@ -4163,8 +4163,8 @@ void Pathfinder::classifyFence( Object *obj, Bool insert )
 #if RETAIL_COMPATIBLE_CRC
 	//CRCDEBUG_LOG(("Pathfinder::classifyFence - (%d,%d)", cellBounds.hi.x, cellBounds.hi.y));
 
-	// In retail, the values in the stack often look like this. We set them
-	// to reduce the likelihood of mismatch.
+	// For retail the values on the stack are often either 0 or larger than the map size.
+	// We initialize them to reduce the likelihood of a mismatch.
 	if (m_classifyFenceZeroInit)
 	{
 		cellBounds.hi.x = 0;
@@ -4172,7 +4172,6 @@ void Pathfinder::classifyFence( Object *obj, Bool insert )
 	}
 	else
 	{
-		// the value just needs to be larger than the width and height of m_map
 		cellBounds.hi.x = 1000000;
 		cellBounds.hi.y = 1000000;
 	}
