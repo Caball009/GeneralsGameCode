@@ -447,13 +447,8 @@ void OpenContain::removeAllContained( Bool exposeStealthUnits )
 //-------------------------------------------------------------------------------------------------
 void OpenContain::killAllContained()
 {
-	// TheSuperHackers @bugfix xezon 23/05/2025 Empty m_containList straight away
-	// to prevent a potential child call to catastrophically modify the m_containList as well.
-	// This scenario can happen if the killed occupant(s) apply deadly damage on death
-	// to the host container, which then attempts to remove all remaining occupants
-	// on the death of the host container. This is reproducible by shooting with
-	// Neutron Shells on a GLA Technical containing GLA Toxin Terrorists
-	// with the Chem_SuicideWeapon upgrade, which is automatically granted by the GLA Toxin Command Center.
+	// TheSuperHackers @bugfix Caball009 11/03/2026 The contain list must be updated while iterating over it,
+	// because e.g. GarrisonContain::onRemoving relies on that behavior for the team ownership of civilian buildings.
 
 	ContainedItemsList::iterator it = m_containList.begin();
 	while ( it != m_containList.end() )
@@ -463,9 +458,6 @@ void OpenContain::killAllContained()
 		DEBUG_ASSERTCRASH( rider, ("Contain list must not contain null element"));
 		if ( rider )
 		{
-			// TheSuperHackers @bugfix Caball009 11/03/2026 The contain list must be updated while iterating over it.
-			// Swapping the list with a temporary one for safety reasons causes the GLA Demolition Suicide upgrade to apply damage to civilian buildings
-			// for all garrisoned units instead of the last one that's killed by Neutron Shells.
 			m_containList.erase(it);
 			--m_containListSize;
 
