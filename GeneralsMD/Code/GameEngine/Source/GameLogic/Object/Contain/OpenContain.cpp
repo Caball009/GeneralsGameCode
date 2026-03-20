@@ -1505,7 +1505,7 @@ void OpenContain::processDamageToContained(Real percentDamage)
 	DEBUG_ASSERTCRASH(m_containListSize == m_containList.size(), ("contain list size doesn't match size of container"));
 
 	// TheSuperHackers @bugfix Caball009 11/03/2026 Use a temporary copy of the contain list to iterate over,
-	// because Object::attemptDamage in OpenContain::processDamageToContainedInternal may remove some or all elements from the list.
+	// because Object::attemptDamage may remove some or all elements from the list while iterating over it, which may be unsafe.
 
 	constexpr const UnsignedInt smallContainerSize = 16;
 	if (m_containListSize < smallContainerSize)
@@ -1525,11 +1525,7 @@ void OpenContain::processDamageToContained(Real percentDamage)
 #else
 
 	// TheSuperHackers @bugfix xezon 05/06/2025 Temporarily empty the m_containList
-	// to prevent a potential child call to catastrophically modify the m_containList.
-	// This scenario can happen if the killed occupant(s) apply deadly damage on death
-	// to the host container, which then attempts to remove all remaining occupants
-	// on the death of the host container. This is reproducible by destroying a
-	// GLA Battle Bus with at least 2 half damaged GLA Terrorists inside.
+	// because Object::attemptDamage may remove some or all elements from the list while iterating over it, which may be unsafe.
 
 	// Caveat: While the m_containList is empty, it will not be possible to apply damage
 	// on death of a unit to another unit in the host container. If this functionality
