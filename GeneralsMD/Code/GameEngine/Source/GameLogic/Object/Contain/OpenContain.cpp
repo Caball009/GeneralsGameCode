@@ -1465,17 +1465,14 @@ void OpenContain::orderAllPassengersToHackInternet( CommandSourceType commandSou
 #if RETAIL_COMPATIBLE_CRC
 
 //-------------------------------------------------------------------------------------------------
-void OpenContain::processDamageToContainedInternal(const ContainedItemsList* items, Real percentDamage)
+void OpenContain::processDamageToContainedInternal(Object* const* objects, size_t size, Real percentDamage)
 {
 	const OpenContainModuleData* data = getOpenContainModuleData();
 	const bool killContained = percentDamage == 1.0f;
 
-	ContainedItemsList::const_iterator it = items->begin();
-	const size_t listSize = items->size();
-
-	while( it != items->end() )
+	for (size_t i = 0; i < size; ++i)
 	{
-		Object *object = *it++;
+		Object* object = objects[i];
 
 		// Calculate the damage to be inflicted on each unit.
 		Real damage = object->getBodyModule()->getMaxHealth() * percentDamage;
@@ -1495,11 +1492,6 @@ void OpenContain::processDamageToContainedInternal(const ContainedItemsList* ite
 		// Object deletion is finalized in a Game Logic update. This will lead to strange behavior
 		// where the occupant will be removed after death with a delay. This behavior cannot be
 		// changed without breaking retail compatibility.
-		if (listSize != items->size())
-		{
-			DEBUG_ASSERTCRASH( listSize == 0, ("List is expected empty") );
-			break;
-		}
 	}
 }
 
@@ -1510,7 +1502,14 @@ void OpenContain::processDamageToContained(Real percentDamage)
 {
 #if RETAIL_COMPATIBLE_CRC
 
-	processDamageToContainedInternal(&m_containList, percentDamage);
+	DEBUG_ASSERTCRASH(m_containListSize == m_containList.size(), ("contain list size doesn't match size of container"));
+
+	// TheSuperHackers @bugfix Caball009 11/03/2026 Use a temporary copy of the contain list to iterate over,
+	// because Object::attemptDamage in OpenContain::processDamageToContainedInternal may remove some or all elements from the list.
+
+	const std::vector<Object*> containCopy(m_containList.begin(), m_containList.end());
+
+	processDamageToContainedInternal(&containCopy[0], containCopy.size(), percentDamage);
 
 #else
 

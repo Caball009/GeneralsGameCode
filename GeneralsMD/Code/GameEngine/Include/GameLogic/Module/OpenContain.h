@@ -220,7 +220,7 @@ public:
 
 	virtual void processDamageToContained(Real percentDamage) override; ///< Do our % damage to units now.
 #if RETAIL_COMPATIBLE_CRC
-	void processDamageToContainedInternal(const ContainedItemsList* items, Real percentDamage);
+	void processDamageToContainedInternal(Object* const* objects, size_t size, Real percentDamage);
 #endif
 
 	virtual Bool isWeaponBonusPassedToPassengers() const override;
