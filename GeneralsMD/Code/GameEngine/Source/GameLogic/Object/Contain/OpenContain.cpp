@@ -1462,7 +1462,17 @@ void OpenContain::orderAllPassengersToHackInternet( CommandSourceType commandSou
 	}
 }
 
+#if RETAIL_COMPATIBLE_CRC
 
+//-------------------------------------------------------------------------------------------------
+void OpenContain::processDamageToContainedInternal(const ContainedItemsList* items, Real percentDamage)
+{
+	const OpenContainModuleData* data = getOpenContainModuleData();
+	const bool killContained = percentDamage == 1.0f;
+
+}
+
+#endif
 
 //-------------------------------------------------------------------------------------------------
 void OpenContain::processDamageToContained(Real percentDamage)
