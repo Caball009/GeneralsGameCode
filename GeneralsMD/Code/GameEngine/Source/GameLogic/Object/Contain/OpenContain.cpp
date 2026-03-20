@@ -1514,16 +1514,9 @@ void OpenContain::processDamageToContainedInternal(const ContainedItemsList* ite
 //-------------------------------------------------------------------------------------------------
 void OpenContain::processDamageToContained(Real percentDamage)
 {
-	const OpenContainModuleData *data = getOpenContainModuleData();
-	const bool killContained = percentDamage == 1.0f;
-
 #if RETAIL_COMPATIBLE_CRC
 
-	const ContainedItemsList* items = getContainedItemsList();
-	if( items )
-	{
-		
-	}
+	processDamageToContainedInternal(&m_containList, percentDamage);
 
 #else
 
@@ -1537,6 +1530,9 @@ void OpenContain::processDamageToContained(Real percentDamage)
 	// Caveat: While the m_containList is empty, it will not be possible to apply damage
 	// on death of a unit to another unit in the host container. If this functionality
 	// is desired, then this implementation needs to be revisited.
+
+	const OpenContainModuleData* data = getOpenContainModuleData();
+	const bool killContained = percentDamage == 1.0f;
 
 	ContainedItemsList list;
 	m_containList.swap(list);
