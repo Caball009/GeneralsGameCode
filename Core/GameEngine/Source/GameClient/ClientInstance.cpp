@@ -27,6 +27,8 @@ UnsignedInt ClientInstance::s_instanceIndex = 0;
 
 #if defined(RTS_MULTI_INSTANCE)
 Bool ClientInstance::s_isMultiInstance = true;
+#elif DEEP_CRC_TO_MEMORY
+Bool ClientInstance::s_isMultiInstance = true;
 #else
 Bool ClientInstance::s_isMultiInstance = false;
 #endif

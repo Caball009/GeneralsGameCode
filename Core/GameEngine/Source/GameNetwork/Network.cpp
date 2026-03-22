@@ -55,6 +55,8 @@
 
 #if defined(DEBUG_CRC)
 Int NET_CRC_INTERVAL = 1;
+#elif DEEP_CRC_TO_MEMORY
+Int NET_CRC_INTERVAL = 1;
 #else
 Int NET_CRC_INTERVAL = 100;
 #endif

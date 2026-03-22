@@ -130,6 +130,9 @@ FILE *g_UT_commaLog=nullptr;
 extern void externalAddTree(Coord3D location, Real scale, Real angle, AsciiString name);
 #endif
 
+#if DEEP_CRC_TO_MEMORY
+#include "GameClient/ClientInstance.h"
+#endif
 
 
 
@@ -467,6 +470,19 @@ void GameLogic::reset()
 	TheWeatherSetting = (WeatherSetting*) ws->deleteOverrides();
 
 	m_rankPointsToAddAtGameStart = 0;
+
+#if DEEP_CRC_TO_MEMORY
+	m_crcBufferIndex = 0;
+
+	m_crcWriteBuffer.resize(1024 * 1024 * 8);
+
+	{
+		for (size_t i = 0; i < ARRAY_SIZE(m_crcBuffers); ++i)
+		{
+			m_crcBuffers[i].resize(1024 * 1024);
+		}
+	}
+#endif
 }
 
 static Object * placeObjectAtPosition(Int slotNum, AsciiString objectTemplateName, Coord3D& pos, Player *pPlayer,
@@ -2619,6 +2635,11 @@ void GameLogic::processCommandList( CommandList *list )
 					player?player->getPlayerDisplayName().str():L"<NONE>", crcIt->second));
 			}
 #endif // DEBUG_LOGGING
+
+#if DEEP_CRC_TO_MEMORY
+			TheGameLogic->writeCRCBuffersToDisk(TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1);
+#endif
+
 			TheNetwork->setSawCRCMismatch();
 		}
 	}
@@ -4043,7 +4064,14 @@ UnsignedInt GameLogic::getCRC( Int mode, AsciiString deepCRCFileName )
 
 	XferCRC *xferCRC;
 	AsciiString marker;
-	if (deepCRCFileName.isNotEmpty())
+
+#if DEEP_CRC_TO_MEMORY
+	const Bool forceDeepCRC = TRUE;
+#else
+	const Bool forceDeepCRC = FALSE;
+#endif
+
+	if (forceDeepCRC || deepCRCFileName.isNotEmpty())
 	{
 		xferCRC = NEW XferDeepCRC;
 		xferCRC->open(deepCRCFileName.str());
@@ -4145,9 +4173,58 @@ UnsignedInt GameLogic::getCRC( Int mode, AsciiString deepCRCFileName )
 		TheGameState->friend_xferSaveDataForCRC(xferCRC, SNAPSHOT_DEEPCRC_LOGICONLY);
 	}
 
-	xferCRC->close();
+	const UnsignedInt theCRC = xferCRC->getCRC();
 
-	UnsignedInt theCRC = xferCRC->getCRC();
+#if DEEP_CRC_TO_MEMORY
+	AsciiString tmp;
+	tmp.format("[ frame %d: %8.8X, logical seeds: %s ]", m_frame, theCRC, GetGameLogicalRandomSeeds().str());
+
+	xferCRC->xferLogString(tmp);
+
+	for (Int j = 0; j < ThePlayerList->getPlayerCount(); ++j)
+	{
+		if (Player* player = ThePlayerList->getNthPlayer(j))
+		{
+			tmp.format("[ Player (%d) money: %d, energy: %d | %d, power sabotage: %d ]",
+				j, player->getMoney()->countMoney(), player->getEnergy()->getProduction(), player->getEnergy()->getConsumption(), player->getEnergy()->getPowerSabotagedTillFrame());
+
+			xferCRC->xferLogString(tmp);
+		}
+	}
+
+	for (obj = m_objList; obj; obj=obj->getNextObject())
+	{
+		XferCRC tmpXfer;
+		tmpXfer.open("");
+		tmpXfer.xferUser(const_cast<Matrix3D*>(obj->getTransformMatrix()), sizeof(Matrix3D));
+		tmpXfer.close();
+
+		const UnsignedInt mtxCRC = tmpXfer.getCRC();
+
+		tmpXfer.open("");
+		tmpXfer.xferUser(const_cast<UpgradeMaskType*>(&obj->getUpgrades()), sizeof(UpgradeMaskType));
+		tmpXfer.close();
+
+		const UnsignedInt upgradeCRC = tmpXfer.getCRC();
+
+		tmp.format("[ CRC of object: %d (%s), player: %d, team: %d, health: %f, upgrades: %8.8X, pos: %f %f %f, mtx: %8.8X ]",
+			obj->getID(), obj->getTemplate()->getName().str(), obj->getControllingPlayer()->getPlayerIndex(), (obj->getTeam() ? obj->getTeam()->getID() : TEAM_ID_INVALID),
+			obj->getBodyModule()->getHealth(), upgradeCRC, obj->getPosition()->x, obj->getPosition()->y, obj->getPosition()->z, mtxCRC);
+
+		xferCRC->xferLogString(tmp);
+	}
+
+	// disable for now because it's quite a bit of data, and it may not be necessary
+	/*
+	static_cast<XferDeepCRC*>(xferCRC)->changeXferMode(XFER_SAVE);
+
+	marker = "MARKER:GameSave";
+	xferCRC->xferAsciiString(&marker);
+	TheGameState->friend_xferSaveDataForCRC(xferCRC, SNAPSHOT_DEEPCRC_LOGICONLY);
+	//*/
+#endif
+
+	xferCRC->close();
 
 	delete xferCRC;
 	xferCRC = nullptr;
@@ -4794,6 +4871,63 @@ void GameLogic::prepareLogicForObjectLoad()
 										 getFirstObject()->getTemplate()->getName().str()) );
 
 }
+
+#if DEEP_CRC_TO_MEMORY
+std::vector<UnsignedByte>& GameLogic::getCRCBuffer()
+{
+	return m_crcWriteBuffer;
+}
+
+void GameLogic::storeCRCBuffer(size_t size)
+{
+	std::vector<UnsignedByte>& vec = m_crcBuffers[m_crcBufferIndex++ % ARRAY_SIZE(m_crcBuffers)];
+
+	vec.clear();
+	vec.insert(vec.begin(), m_crcWriteBuffer.begin(), m_crcWriteBuffer.begin() + size);
+}
+
+void GameLogic::writeCRCBuffersToDisk(UnsignedInt frame) const
+{
+	AsciiString str;
+	const UnsignedInt timestamp = static_cast<UnsignedInt>(time(nullptr));
+
+	const UnsignedInt id = rts::ClientInstance::getInstanceId();
+	if (id == 1)
+	{
+		str.format("%scrc_buffer_%d.bin", TheGlobalData->getPath_UserData().str(), timestamp);
+	}
+	else
+	{
+		str.format("%scrc_buffer_%d_instance%d.bin", TheGlobalData->getPath_UserData().str(), timestamp, id);
+	}
+
+	FILE* fp = fopen(str.str(), "wb");
+	if (fp)
+	{
+		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.3) ]";
+
+		if (fwrite(&version[0], ARRAY_SIZE(version) - 1, 1, fp) != 1)
+		{
+			// todo: handle error
+		}
+
+		for (size_t i = 0; i < ARRAY_SIZE(m_crcBuffers); ++i)
+		{
+			const UnsignedInt index = (m_crcBufferIndex + i) % ARRAY_SIZE(m_crcBuffers);
+			if (fwrite(&m_crcBuffers[index][0], m_crcBuffers[index].size(), 1, fp) != 1)
+			{
+				// todo: handle error
+			}
+		}
+
+		fclose(fp);
+	}
+	else
+	{
+		// todo: handle error
+	}
+}
+#endif
 
 // ------------------------------------------------------------------------------------------------
 /** Load/Save game logic to xfer
