@@ -76,6 +76,22 @@ UnsignedInt GetGameLogicRandomSeedCRC()
 	return c.get();
 }
 
+#if DEEP_CRC_TO_MEMORY
+AsciiString GetGameLogicalRandomSeeds()
+{
+	AsciiString str;
+	str.format("%8.8X, %8.8X, %8.8X, %8.8X, %8.8X, %8.8X",
+		theGameLogicSeed[0],
+		theGameLogicSeed[1],
+		theGameLogicSeed[2],
+		theGameLogicSeed[3],
+		theGameLogicSeed[4],
+		theGameLogicSeed[5]);
+
+	return str;
+}
+#endif
+
 static void seedRandom(UnsignedInt SEED, UnsignedInt (&seed)[6])
 {
 	UnsignedInt ax;
