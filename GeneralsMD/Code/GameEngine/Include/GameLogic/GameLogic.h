@@ -79,7 +79,7 @@ enum GameMode CPP_11(: Int)
 	GAME_NONE
 };
 
-const char* gameModeToString(GameMode mode);
+const char* toString(GameMode mode);
 
 enum
 {

@@ -214,7 +214,7 @@ void setFPMode()
 }
 
 //-------------------------------------------------------------------------------------------------
-const char* gameModeToString(GameMode mode)
+const char* toString(GameMode mode)
 {
 	switch (mode)
 	{
@@ -1267,7 +1267,7 @@ void GameLogic::startNewGame( Bool loadingSaveGame )
 			if (!loadingSaveGame) {
 				if (!slot->saveOffOriginalInfo())
 				{
-					DEBUG_ASSERTCRASH(m_gameMode == GAME_SKIRMISH, ("Expected GAME_SKIRMISH but got %s", gameModeToString(m_gameMode)));
+					DEBUG_ASSERTCRASH(m_gameMode == GAME_SKIRMISH, ("Expected GAME_SKIRMISH but got %s", toString(m_gameMode)));
 
 					// TheSuperHackers @fix Caball009 19/03/2026 Random color, position and faction are based on the logical seed. For improved determinism, 
 					// restarted games now set the original values so that the games start with the exact same logical seed values as the first time.
