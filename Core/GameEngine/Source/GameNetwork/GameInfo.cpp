@@ -223,6 +223,7 @@ void GameSlot::setState( SlotState state, UnicodeString name, UnsignedInt IP )
 	}
 	else
 	{
+		m_saveOffOriginalInfo = TRUE;
 		m_state = state;
 		m_isAccepted = true;
 		m_hasMap = true;
