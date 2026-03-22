@@ -35,4 +35,8 @@ extern void InitRandom( UnsignedInt seed );
 extern UnsignedInt GetGameLogicRandomSeed();   ///< Get the seed (used for replays)
 extern UnsignedInt GetGameLogicRandomSeedCRC();///< Get the seed (used for CRCs)
 
+#if DEEP_CRC_TO_MEMORY
+AsciiString GetGameLogicalRandomSeeds();
+#endif
+
 //--------------------------------------------------------------------------------------------------------------

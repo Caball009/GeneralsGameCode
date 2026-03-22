@@ -818,6 +818,10 @@ private:
 	Bool													m_singleUseCommandUsed;
 	Bool													m_isReceivingDifficultyBonus;
 
+#if DEEP_CRC_TO_MEMORY
+public:
+	const UpgradeMaskType& getUpgrades() const { return m_objectUpgradesCompleted; }
+#endif
 };
 
 // deleteInstance is not meant to be used with Object in order to require the use of TheGameLogic->destroyObject()

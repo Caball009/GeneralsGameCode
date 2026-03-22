@@ -407,6 +407,16 @@ private:
 	void xferObjectTOC( Xfer *xfer );												///< save/load object TOC for current state of map
 	void prepareLogicForObjectLoad();									///< prepare engine for object data from game file
 
+#if DEEP_CRC_TO_MEMORY
+	UnsignedInt m_crcBufferIndex;
+	std::vector<UnsignedByte> m_crcWriteBuffer;
+	std::vector<UnsignedByte> m_crcBuffers[64];
+
+public:
+	std::vector<UnsignedByte>& getCRCBuffer();
+	void storeCRCBuffer(size_t size);
+	void writeCRCBuffersToDisk(UnsignedInt frame) const;
+#endif
 };
 
 // INLINE /////////////////////////////////////////////////////////////////////////////////////////

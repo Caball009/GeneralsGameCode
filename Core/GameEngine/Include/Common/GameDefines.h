@@ -116,6 +116,10 @@
 #endif
 #endif
 
+#if (!defined(DEEP_CRC_TO_MEMORY) && !defined(DEBUG_CRC))
+#define DEEP_CRC_TO_MEMORY 1
+#endif
+
 #define MIN_DISPLAY_BIT_DEPTH       16
 #define DEFAULT_DISPLAY_BIT_DEPTH   32
 #define DEFAULT_DISPLAY_WIDTH      800 // The standard resolution this game was designed for
