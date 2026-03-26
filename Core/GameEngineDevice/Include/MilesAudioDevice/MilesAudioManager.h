@@ -330,9 +330,10 @@ class MilesAudioManager : public AudioManager
 
 };
 
-// TheSuperHackers @feature helmutbuhler 17/05/2025
-// AudioManager that does nothing. Used for Headless Mode.
-class AudioManagerDummy : public AudioManager
+// TheSuperHackers @feature helmutbuhler 17/05/2025 AudioManager that does almost nothing. Useful for headless mode.
+// @bugfix Caball009 26/03/2026 Scripts may require the actual audio file length to function properly, which is important for the CRC computation.
+// The Miles AudioManager handles the device opening / closure, so that getFileLengthMS can function as intended.
+class MilesAudioManagerDummy : public MilesAudioManager
 {
 #if defined(RTS_DEBUG)
 	virtual void audioDebugDisplay(DebugDisplayInterface* dd, void* userData, FILE* fp) {}
@@ -347,9 +348,9 @@ class AudioManagerDummy : public AudioManager
 	virtual Bool isMusicPlaying() const override { return false; }
 	virtual Bool hasMusicTrackCompleted(const AsciiString& trackName, Int numberOfTimes) const override { return false; }
 	virtual AsciiString getMusicTrackName() const override { return ""; }
-	virtual void openDevice() override {}
-	virtual void closeDevice() override {}
-	virtual void* getDevice() override { return nullptr; }
+	//virtual void openDevice() override {}
+	//virtual void closeDevice() override {}
+	//virtual void* getDevice() override { return nullptr; }
 	virtual void notifyOfAudioCompletion(UnsignedInt audioCompleted, UnsignedInt flags) override {}
 	virtual UnsignedInt getProviderCount() const override { return 0; };
 	virtual AsciiString getProviderName(UnsignedInt providerNum) const override { return ""; }
@@ -375,7 +376,7 @@ class AudioManagerDummy : public AudioManager
 	virtual void friend_forcePlayAudioEventRTS(const AudioEventRTS* eventToPlay) override {}
 	virtual void setPreferredProvider(AsciiString providerNdx) override {}
 	virtual void setPreferredSpeaker(AsciiString speakerType) override {}
-	virtual Real getFileLengthMS(AsciiString strToLoad) const override { return -1; }
+	//virtual Real getFileLengthMS(AsciiString strToLoad) const override { return 0.0f; }
 	virtual void closeAnySamplesUsingFile(const void* fileToClose) override {}
 	virtual void setDeviceListenerPosition() override {}
 };
