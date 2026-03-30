@@ -4211,7 +4211,7 @@ void Object::xfer( Xfer *xfer )
 	// disabled till frame
 	xfer->xferUser( m_disabledTillFrame, sizeof( UnsignedInt ) * DISABLED_COUNT );
 
-	// OK, now that we have xferred our status bits, it's safe to set the team...
+	// OK, now that we have xferred our status bits and disabled data, it's safe to set the team...
 	if( xfer->getXferMode() == XFER_LOAD )
 	{
 		Team *team = TheTeamFactory->findTeamByID( teamID );
