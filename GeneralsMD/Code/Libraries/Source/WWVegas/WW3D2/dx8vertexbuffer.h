@@ -75,9 +75,6 @@ public:
 */
 class VertexBufferClass : public RefCountClass
 {
-	// nope, an ABC
-	//W3DMPO_CODE(VertexBufferClass)
-
 protected:
 	VertexBufferClass(unsigned type, unsigned FVF, unsigned short VertexCount, unsigned vertex_size=0);
 	virtual ~VertexBufferClass() override;
