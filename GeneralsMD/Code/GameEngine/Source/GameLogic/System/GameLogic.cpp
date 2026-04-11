@@ -2684,6 +2684,17 @@ void GameLogic::processCommandList( CommandList *list )
 #endif // DEBUG_LOGGING
 
 #if DEEP_CRC_TO_MEMORY
+			// disabled for now because it's largely hidden behind the mismatch window
+			/*
+			TheInGameUI->message("CRC Mismatch - saw %d CRCs from %d players", m_cachedCRCs.size(), numPlayers);
+			for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
+			{
+				Player* player = ThePlayerList->getNthPlayer(crcIt->first);
+				TheInGameUI->message("CRC from player %d (%ls) = %X", crcIt->first,
+					player ? player->getPlayerDisplayName().str() : L"<NONE>", crcIt->second);
+			}
+			*/
+
 			TheGameLogic->writeCRCBuffersToDisk(TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1);
 #endif
 
@@ -4920,6 +4931,51 @@ void GameLogic::prepareLogicForObjectLoad()
 }
 
 #if DEEP_CRC_TO_MEMORY
+void GameLogic::addCRCPathFindingCallSite(UnsignedInt val, ObjectID id)
+{
+	PathFindingCallSites data;
+	data.val = val;
+	data.id = id;
+
+	m_crcPathFindingCallSites.push_back(data);
+}
+
+void GameLogic::addCRCPathfindingData(ObjectID id, Int queuePRHead, Int m_queuePRTail)
+{
+	PathFindingCRCData data;
+	data.id = id;
+	data.queuePRHead = queuePRHead;
+	data.m_queuePRTail = m_queuePRTail;
+
+	Real r;
+	constexpr UnsignedInt u = 0xDEADC0DE;
+
+	static_assert(sizeof(r) == sizeof(u));
+	memcpy(&r, &u, sizeof(r));
+
+	if (Object* obj = TheGameLogic->findObjectByID(id))
+	{
+		data.curPos = *obj->getPosition();
+
+		if (AIUpdateInterface* ai = obj->getAIUpdateInterface())
+		{
+			data.requestedPos1 = *ai->friend_getRequestedDestination();
+			data.requestedPos2 = *ai->friend_getRequestedDestination2();
+		}
+		else
+		{
+			data.requestedPos1.set(r, r, r);
+			data.requestedPos2.set(r, r, r);
+		}
+	}
+	else
+	{
+		data.curPos.set(r, r, r);
+	}
+
+	m_crcPathFindingData.push_back(data);
+}
+
 std::vector<UnsignedByte>& GameLogic::getCRCBuffer()
 {
 	return m_crcWriteBuffer;
@@ -4927,6 +4983,58 @@ std::vector<UnsignedByte>& GameLogic::getCRCBuffer()
 
 void GameLogic::storeCRCBuffer(size_t size)
 {
+	{
+		constexpr const char marker[] = "MARKER:PathfindingCallSites";
+		constexpr size_t markerSize = ARRAY_SIZE(marker) - 1;
+
+		while (size + markerSize >= m_crcWriteBuffer.size())
+		{
+			m_crcWriteBuffer.resize(m_crcWriteBuffer.size() * 2);
+		}
+
+		memcpy(&m_crcWriteBuffer[size], &marker[0], markerSize);
+		size += markerSize;
+
+		constexpr size_t dataSize = sizeof(m_crcPathFindingCallSites[0]);
+		while (size + dataSize * m_crcPathFindingCallSites.size() >= m_crcWriteBuffer.size())
+		{
+			m_crcWriteBuffer.resize(m_crcWriteBuffer.size() * 2);
+		}
+
+		for (size_t i = 0; i < m_crcPathFindingCallSites.size(); ++i, size += dataSize)
+		{
+			memcpy(&m_crcWriteBuffer[size], &m_crcPathFindingCallSites[0], dataSize);
+		}
+
+		m_crcPathFindingCallSites.clear();
+	}
+
+	{
+		constexpr const char marker[] = "MARKER:CustomPathfindingData";
+		constexpr size_t markerSize = ARRAY_SIZE(marker) - 1;
+
+		while (size + markerSize >= m_crcWriteBuffer.size())
+		{
+			m_crcWriteBuffer.resize(m_crcWriteBuffer.size() * 2);
+		}
+
+		memcpy(&m_crcWriteBuffer[size], &marker[0], markerSize);
+		size += markerSize;
+
+		constexpr size_t dataSize = sizeof(m_crcPathFindingData[0]);
+		while (size + dataSize * m_crcPathFindingData.size() >= m_crcWriteBuffer.size())
+		{
+			m_crcWriteBuffer.resize(m_crcWriteBuffer.size() * 2);
+		}
+
+		for (size_t i = 0; i < m_crcPathFindingData.size(); ++i, size += dataSize)
+		{
+			memcpy(&m_crcWriteBuffer[size], &m_crcPathFindingData[0], dataSize);
+		}
+
+		m_crcPathFindingData.clear();
+	}
+
 	std::vector<UnsignedByte>& vec = m_crcBuffers[m_crcBufferIndex++ % ARRAY_SIZE(m_crcBuffers)];
 
 	vec.clear();
@@ -4951,7 +5059,7 @@ void GameLogic::writeCRCBuffersToDisk(UnsignedInt frame) const
 	FILE* fp = fopen(str.str(), "wb");
 	if (fp)
 	{
-		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.3) ]";
+		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.4) ]";
 
 		if (fwrite(&version[0], ARRAY_SIZE(version) - 1, 1, fp) != 1)
 		{

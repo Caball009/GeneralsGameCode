@@ -5824,6 +5824,11 @@ Bool Pathfinder::queueForPath(ObjectID id)
 	}
 #endif
 
+#if DEEP_CRC_TO_MEMORY
+	TheGameLogic->addCRCPathFindingCallSite(0xFFFFFFFF, id);
+	TheGameLogic->addCRCPathfindingData(id, m_queuePRHead, m_queuePRTail);
+#endif
+
 	/* Check & see if we are already queued. */
 	Int slot = m_queuePRHead;
 	while (slot != m_queuePRTail) {

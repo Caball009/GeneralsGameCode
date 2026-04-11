@@ -408,11 +408,33 @@ private:
 	void prepareLogicForObjectLoad();									///< prepare engine for object data from game file
 
 #if DEEP_CRC_TO_MEMORY
+public:
+	struct PathFindingCRCData
+	{
+		ObjectID id;
+		Int queuePRHead;
+		Int m_queuePRTail;
+		Coord3D curPos;
+		Coord3D requestedPos1;
+		Coord3D requestedPos2;
+	};
+
+	struct PathFindingCallSites
+	{
+		UnsignedInt val;
+		ObjectID id;
+	};
+
+private:
 	UnsignedInt m_crcBufferIndex;
 	std::vector<UnsignedByte> m_crcWriteBuffer;
 	std::vector<UnsignedByte> m_crcBuffers[64];
+	std::vector<PathFindingCRCData> m_crcPathFindingData;
+	std::vector<PathFindingCallSites> m_crcPathFindingCallSites;
 
 public:
+	void addCRCPathFindingCallSite(UnsignedInt val, ObjectID id);
+	void addCRCPathfindingData(ObjectID id, Int queuePRHead, Int m_queuePRTail);
 	std::vector<UnsignedByte>& getCRCBuffer();
 	void storeCRCBuffer(size_t size);
 	void writeCRCBuffersToDisk(UnsignedInt frame) const;
