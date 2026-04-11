@@ -478,6 +478,9 @@ will be processed when we get to the front of the pathfind queue. jba */
 //-------------------------------------------------------------------------------------------------
 void AIUpdateInterface::requestPath( Coord3D *destination, Bool isFinalGoal )
 {
+#if DEEP_CRC_TO_MEMORY
+	TheGameLogic->addCRCPathFindingCallSite(1, getObject()->getID());
+#endif
 
 	if (m_locomotorSet.getValidSurfaces() == 0) {
 		DEBUG_CRASH(("Attempting to path immobile unit."));
@@ -493,6 +496,11 @@ void AIUpdateInterface::requestPath( Coord3D *destination, Bool isFinalGoal )
 	m_isSafePath = FALSE;
 	if (canComputeQuickPath()) {
 		computeQuickPath(destination);
+
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC01DD01, getObject()->getID());
+#endif
+
 		return;
 	}
 	m_waitingForPath = TRUE;
@@ -510,6 +518,11 @@ void AIUpdateInterface::requestPath( Coord3D *destination, Bool isFinalGoal )
 			m_isBlocked = FALSE;
 			m_isBlockedAndStuck = FALSE;
 		}
+
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC01DD02, getObject()->getID());
+#endif
+
 		return;
 	}
 	TheAI->pathfinder()->queueForPath(getObject()->getID());
@@ -519,6 +532,10 @@ void AIUpdateInterface::requestPath( Coord3D *destination, Bool isFinalGoal )
 //-------------------------------------------------------------------------------------------------
 void AIUpdateInterface::requestAttackPath( ObjectID victimID, const Coord3D* victimPos )
 {
+#if DEEP_CRC_TO_MEMORY
+	TheGameLogic->addCRCPathFindingCallSite(2, getObject()->getID());
+#endif
+
 	if (m_locomotorSet.getValidSurfaces() == 0) {
 		DEBUG_CRASH(("Attempting to path immobile unit."));
 	}
@@ -534,6 +551,11 @@ void AIUpdateInterface::requestAttackPath( ObjectID victimID, const Coord3D* vic
 		//DEBUG_LOG(("%d Pathfind - repathing in less than 3 frames.  Waiting 2 second",TheGameLogic->getFrame()));
 		setQueueForPathTime(2*LOGICFRAMES_PER_SECOND);
 		setLocomotorGoalNone();
+
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC02DD01, getObject()->getID());
+#endif
+
 		return;
 	}
 	TheAI->pathfinder()->queueForPath(getObject()->getID());
@@ -542,6 +564,10 @@ void AIUpdateInterface::requestAttackPath( ObjectID victimID, const Coord3D* vic
 //-------------------------------------------------------------------------------------------------
 void AIUpdateInterface::requestApproachPath( Coord3D *destination )
 {
+#if DEEP_CRC_TO_MEMORY
+	TheGameLogic->addCRCPathFindingCallSite(3, getObject()->getID());
+#endif
+
 	if (m_locomotorSet.getValidSurfaces() == 0) {
 		DEBUG_CRASH(("Attempting to path immobile unit."));
 	}
@@ -557,6 +583,11 @@ void AIUpdateInterface::requestApproachPath( Coord3D *destination )
 		/* Requesting path very quickly.  Can cause a spin. */
 		//DEBUG_LOG(("%d Pathfind - repathing in less than 3 frames.  Waiting 2 second",TheGameLogic->getFrame()));
 		setQueueForPathTime(2*LOGICFRAMES_PER_SECOND);
+
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC03DD01, getObject()->getID());
+#endif
+
 		return;
 	}
 	TheAI->pathfinder()->queueForPath(getObject()->getID());
@@ -566,6 +597,10 @@ void AIUpdateInterface::requestApproachPath( Coord3D *destination )
 // Requests a safe path away from the repulsor.
 void AIUpdateInterface::requestSafePath( ObjectID repulsor )
 {
+#if DEEP_CRC_TO_MEMORY
+	TheGameLogic->addCRCPathFindingCallSite(4, getObject()->getID());
+#endif
+
 	if (repulsor != m_repulsor1) {
 		m_repulsor2 = m_repulsor1; // save the prior repulsor.
 	}
@@ -581,6 +616,11 @@ void AIUpdateInterface::requestSafePath( ObjectID repulsor )
 		/* Requesting path very quickly.  Can cause a spin. */
 		//DEBUG_LOG(("%d Pathfind - repathing in less than 3 frames.  Waiting 2 second",TheGameLogic->getFrame()));
 		setQueueForPathTime(2*LOGICFRAMES_PER_SECOND);
+
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC04DD01, getObject()->getID());
+#endif
+
 		return;
 	}
 	TheAI->pathfinder()->queueForPath(getObject()->getID());
@@ -1001,6 +1041,10 @@ void AIUpdateInterface::friend_notifyStateMachineChanged()
 DECLARE_PERF_TIMER(AIUpdateInterface_update)
 UpdateSleepTime AIUpdateInterface::update()
 {
+#if DEEP_CRC_TO_MEMORY
+	//TheGameLogic->addCRCPathFindingCallSite(5, getObject()->getID());
+#endif
+
 	//DEBUG_LOG(("AIUpdateInterface frame %d: %08lx",TheGameLogic->getFrame(),getObject()));
 
 	USE_PERF_TIMER(AIUpdateInterface_update)
@@ -1071,10 +1115,20 @@ UpdateSleepTime AIUpdateInterface::update()
 		}
 		else
 		{
+#if DEEP_CRC_TO_MEMORY
+			TheGameLogic->addCRCPathFindingCallSite(0xCC05DD02, getObject()->getID());
+#endif
+
 			UnsignedInt sleepForPathDelta = m_queueForPathFrame - now;
 			if (sleepForPathDelta < subMachineSleep)
 				subMachineSleep = UPDATE_SLEEP(sleepForPathDelta);
 		}
+	}
+	else
+	{
+#if DEEP_CRC_TO_MEMORY
+		TheGameLogic->addCRCPathFindingCallSite(0xCC05DD01, getObject()->getID());
+#endif
 	}
 
 	Object *obj = getObject();
