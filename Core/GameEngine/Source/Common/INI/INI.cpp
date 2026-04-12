@@ -1867,12 +1867,10 @@ void INI::parseSoundsList( INI* ini, void *instance, void *store, const void* /*
 	std::vector<AsciiString> *vec = (std::vector<AsciiString>*) store;
 	vec->clear();
 
-	const char* SEPS = " \t,=";
-	const char *c = ini->getNextTokenOrNull(SEPS);
-	while ( c )
+	constexpr const char* SEPS = " \t,=";
+	for (const char* token = ini->getNextTokenOrNull(SEPS); token; token = ini->getNextTokenOrNull(SEPS))
 	{
-		vec->push_back( c );
-		c = ini->getNextTokenOrNull(SEPS);
+		vec->push_back(token);
 	}
 }
 
