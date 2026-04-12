@@ -180,11 +180,6 @@ INI::INI()
 	m_filename					= "None";
 	m_loadType					= INI_LOAD_INVALID;
 	m_lineNum						= 0;
-	m_seps							= " \n\r\t=";			///< make sure you update m_sepsPercent/m_sepsColon as well
-	m_sepsPercent				= " \n\r\t=%%";
-	m_sepsColon					= " \n\r\t=:";
-	m_sepsQuote					= "\"\n=";				///< stop at " = EOL
-	m_blockEndToken			= "END";
 	m_endOfFile					= FALSE;
 	m_buffer[0]					= 0;
 #ifdef DEBUG_CRASHING
@@ -397,7 +392,7 @@ UnsignedInt INI::load( AsciiString filename, INILoadType loadType, Xfer *pXfer )
 			AsciiString currentLine = m_buffer;
 
 			// the first word is the type of data we're processing
-			const char *token = strtok( m_buffer, m_seps );
+			const char *token = strtok( m_buffer, getSeps() );
 			if( token )
 			{
 				INIBlockParse parse = findBlockParse(token);
@@ -1528,7 +1523,7 @@ void INI::initFromINIMulti( void *what, const MultiIniFieldParse& parseTableList
 		if( field )
 		{
 
-			if( stricmp( field, m_blockEndToken ) == 0 )
+			if( stricmp( field, getEndToken() ) == 0 )
 			{
 				done = TRUE;
 			}
@@ -1590,9 +1585,8 @@ void INI::initFromINIMulti( void *what, const MultiIniFieldParse& parseTableList
 }
 
 //-------------------------------------------------------------------------------------------------
-/*static*/ const char* INI::getNextToken(const char* seps)
+/*static*/ const char* INI::getNextToken(const char* seps /*= getSeps()*/)
 {
-	if (!seps) seps = getSeps();
 	const char *token = ::strtok(nullptr, seps);
 	if (!token)
 		throw INI_INVALID_DATA;
@@ -1600,9 +1594,8 @@ void INI::initFromINIMulti( void *what, const MultiIniFieldParse& parseTableList
 }
 
 //-------------------------------------------------------------------------------------------------
-/*static*/ const char* INI::getNextTokenOrNull(const char* seps)
+/*static*/ const char* INI::getNextTokenOrNull(const char* seps /*= getSeps()*/)
 {
-	if (!seps) seps = getSeps();
 	const char *token = ::strtok(nullptr, seps);
 	return token;
 }
