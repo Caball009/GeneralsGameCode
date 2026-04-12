@@ -160,13 +160,8 @@ typedef void (*BuildMultiIniFieldProc)(MultiIniFieldParse& p);
 //-------------------------------------------------------------------------------------------------
 class INI
 {
-  INI(const INI&);
-  INI& operator=(const INI&);
-
 public:
-
 	INI();
-	~INI();
 
 	// TheSuperHackers @feature xezon 19/08/2025
 	// Load a specific INI file by name and/or INI files from a directory (and its subdirectories).
@@ -322,7 +317,6 @@ public:
 	static void parseVeterancyLevelFlags(INI* ini, void* instance, void* store, const void* userData);
 	static void parseSoundsList( INI* ini, void *instance, void *store, const void* /*userData*/ );
 
-
 	/**
 		return the next token. if seps is not specified, the standard seps are used.
 
@@ -401,7 +395,7 @@ protected:
 	unsigned m_readBufferUsed;                ///< number of bytes in read buffer
 
 	AsciiString m_filename;										///< filename of file currently loading
-	INILoadType m_loadType;										///< load time for current file
+	INILoadType m_loadType;										///< load type for current file
 	UnsignedInt m_lineNum;										///< current line number that's been read
 	char m_buffer[ INI_MAX_CHARS_PER_LINE+1 ];///< buffer to read file contents into
 	Bool m_endOfFile;													///< TRUE when we've hit EOF

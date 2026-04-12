@@ -180,18 +180,11 @@ INI::INI()
 	m_filename					= "None";
 	m_loadType					= INI_LOAD_INVALID;
 	m_lineNum						= 0;
-	m_endOfFile					= FALSE;
 	m_buffer[0]					= 0;
+	m_endOfFile					= FALSE;
 #ifdef DEBUG_CRASHING
 	m_curBlockStart[0]	= 0;
 #endif
-
-}
-
-//-------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------
-INI::~INI()
-{
 
 }
 
