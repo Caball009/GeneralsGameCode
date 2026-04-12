@@ -698,7 +698,7 @@ void INI::parseAsciiStringVector( INI* ini, void * /*instance*/, void *store, co
 {
 	std::vector<AsciiString>* asv = (std::vector<AsciiString>*)store;
 	asv->clear();
-	for (const char *token = ini->getNextTokenOrNull(); token != nullptr; token = ini->getNextTokenOrNull())
+	for (const char *token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		asv->push_back(token);
 	}
@@ -711,7 +711,7 @@ void INI::parseAsciiStringVectorAppend( INI* ini, void * /*instance*/, void *sto
 	std::vector<AsciiString>* asv = (std::vector<AsciiString>*)store;
 	// nope, don't clear. duh.
 	// asv->clear();
-	for (const char *token = ini->getNextTokenOrNull(); token != nullptr; token = ini->getNextTokenOrNull())
+	for (const char *token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		asv->push_back(token);
 	}
@@ -723,7 +723,7 @@ void INI::parseAsciiStringVectorAppend( INI* ini, void * /*instance*/, void *sto
 {
 	ScienceVec* asv = (ScienceVec*)store;
 	asv->clear();
-	for (const char *token = ini->getNextTokenOrNull(); token != nullptr; token = ini->getNextTokenOrNull())
+	for (const char *token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (stricmp(token, "None") == 0)
 		{
@@ -940,7 +940,7 @@ void INI::parseBitString32( INI* ini, void * /*instance*/, void *store, const vo
 	Bool foundAddOrSub = false;
 
 	// loop through all tokens
-	for (const char *token = ini->getNextTokenOrNull(); token != nullptr; token = ini->getNextTokenOrNull())
+	for (const char *token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (stricmp(token, "NONE") == 0)
 		{
