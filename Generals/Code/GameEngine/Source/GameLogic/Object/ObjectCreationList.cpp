@@ -1356,7 +1356,6 @@ protected:
 			if (TheGlobalData->m_preloadAssets)
 				debrisModelNamesGlobalHack.push_back(debrisName);
 			debrisNugget->m_names.push_back(AsciiString(debrisName));
-			debrisName = ini->getNextTokenOrNull();
 		}
 	}
 
