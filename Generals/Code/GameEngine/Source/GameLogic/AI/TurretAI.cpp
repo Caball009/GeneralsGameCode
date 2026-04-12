@@ -202,7 +202,7 @@ TurretAIData::TurretAIData()
 static void parseTWS(INI* ini, void * /*instance*/, void * store, const void* /*userData*/)
 {
 	UnsignedInt* tws = (UnsignedInt*)store;
-	for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
+	for (const char* token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		WeaponSlotType wslot = (WeaponSlotType)INI::scanIndexList(token, TheWeaponSlotTypeNames);
 		*tws |= (1 << wslot);

@@ -1828,7 +1828,7 @@ void INI::parseAccelerationReal( INI *ini, void * /*instance*/, void *store, con
 void INI::parseVeterancyLevelFlags(INI* ini, void* /*instance*/, void* store, const void* /*userData*/)
 {
 	VeterancyLevelFlags flags = VETERANCY_LEVEL_FLAGS_ALL;
-	for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
+	for (const char* token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (stricmp(token, "ALL") == 0)
 		{
@@ -1879,8 +1879,7 @@ void INI::parseSoundsList( INI* ini, void *instance, void *store, const void* /*
 void INI::parseDamageTypeFlags(INI* ini, void* /*instance*/, void* store, const void* /*userData*/)
 {
 	DamageTypeFlags flags = DAMAGE_TYPE_FLAGS_ALL;
-
-	for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
+	for (const char* token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (stricmp(token, "ALL") == 0)
 		{
@@ -1914,7 +1913,7 @@ void INI::parseDamageTypeFlags(INI* ini, void* /*instance*/, void* store, const 
 void INI::parseDeathTypeFlags(INI* ini, void* /*instance*/, void* store, const void* /*userData*/)
 {
 	DeathTypeFlags flags = DEATH_TYPE_FLAGS_ALL;
-	for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
+	for (const char* token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (stricmp(token, "ALL") == 0)
 		{

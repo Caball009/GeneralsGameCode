@@ -172,7 +172,7 @@ const LocomotorTemplateVector* AIUpdateModuleData::findLocomotorTemplateVector(L
 	}
 
 	self->m_locomotorTemplates[set].clear();
-	for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
+	for (const char* token = ini->getNextTokenOrNull(); token; token = ini->getNextTokenOrNull())
 	{
 		if (!*token || stricmp(token, "None") == 0)
 			continue;
