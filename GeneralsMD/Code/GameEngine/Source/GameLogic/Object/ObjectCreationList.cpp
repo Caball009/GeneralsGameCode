@@ -1439,11 +1439,11 @@ protected:
 	static void parseDebrisObjectNames( INI* ini, void *instance, void *store, const void* /*userData*/ )
 	{
 		GenericObjectCreationNugget* debrisNugget = (GenericObjectCreationNugget*)instance;
-		for (const char* debrisName = ini->getNextToken(); debrisName; debrisName = ini->getNextTokenOrNull())
+		for (const char* token = ini->getNextToken(); token; token = ini->getNextTokenOrNull())
 		{
 			if (TheGlobalData->m_preloadAssets)
-				debrisModelNamesGlobalHack.push_back(debrisName);
-			debrisNugget->m_names.push_back(AsciiString(debrisName));
+				debrisModelNamesGlobalHack.push_back(token);
+			debrisNugget->m_names.push_back(AsciiString(token));
 		}
 	}
 
