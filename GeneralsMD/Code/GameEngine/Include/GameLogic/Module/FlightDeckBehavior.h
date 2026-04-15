@@ -116,7 +116,7 @@ public:
 	virtual void unreserveDoorForExit( ExitDoorType exitDoor ) override;
 	virtual void exitObjectByBudding( Object *newObj, Object *budHost ) override { return; }
 	virtual Bool getExitPosition( Coord3D& rallyPoint ) const override { return FALSE; }
-	virtual Bool getNaturalRallyPoint( Coord3D& rallyPoint, Bool offset = TRUE ) { return FALSE; }
+	virtual Bool getNaturalRallyPoint( Coord3D& rallyPoint, Bool offset = TRUE ) const override { return FALSE; }
 	virtual void setRallyPoint( const Coord3D *pos ) override {}
 	virtual const Coord3D *getRallyPoint() const override { return nullptr;}
 
