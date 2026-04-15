@@ -40,8 +40,8 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CWDumpEditView)
 	protected:
-	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint);
+	virtual void OnDraw(CDC* pDC) override;      // overridden to draw this view
+	virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) override;
 	//}}AFX_VIRTUAL
 
 // Implementation

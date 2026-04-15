@@ -150,8 +150,8 @@ public:
 	// AIUpdateInterface
 	virtual void aiDoCommand(const AICommandParms* parms) override;
 
-	virtual const std::vector<Coord3D>* getTaxiLocations( ObjectID id ) const;
-	virtual const std::vector<Coord3D>* getCreationLocations( ObjectID id ) const;
+	virtual const std::vector<Coord3D>* getTaxiLocations( ObjectID id ) const override;
+	virtual const std::vector<Coord3D>* getCreationLocations( ObjectID id ) const override;
 
 private:
 

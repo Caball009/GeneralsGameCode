@@ -39,8 +39,8 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CWdumpView)
 	public:
-	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual void OnDraw(CDC* pDC) override;  // overridden to draw this view
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 	protected:
 	//}}AFX_VIRTUAL
 

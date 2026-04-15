@@ -48,8 +48,8 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CWdumpDoc)
 	public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
+	virtual BOOL OnNewDocument() override;
+	virtual void Serialize(CArchive& ar) override;
 	//}}AFX_VIRTUAL
 
 // Implementation

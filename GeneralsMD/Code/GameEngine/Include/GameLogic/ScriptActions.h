@@ -46,7 +46,7 @@ class ScriptActionsInterface : public SubsystemInterface
 
 public:
 
-	virtual ~ScriptActionsInterface() override { };
+	virtual ~ScriptActionsInterface() { };
 
 	virtual void executeAction( ScriptAction *pAction ) = 0; ///< execute a script action.
 	virtual void closeWindows( Bool suppressNewWindows ) = 0;
