@@ -126,7 +126,7 @@ public:
 	ArchiveFileSystem();
 	virtual ~ArchiveFileSystem() override;
 
-	virtual void postProcessLoad() = 0;
+	virtual void postProcessLoad() override = 0;
 
 	// ArchiveFile operations
 	virtual ArchiveFile*	openArchiveFile( const Char *filename ) = 0;		///< Create new or return existing Archive file from file name
