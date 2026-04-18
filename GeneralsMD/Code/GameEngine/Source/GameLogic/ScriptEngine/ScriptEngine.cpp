@@ -5703,9 +5703,24 @@ void ScriptEngine::startQuickEndGameTimer()
 //-------------------------------------------------------------------------------------------------
 /** startEndGameTimer */
 //-------------------------------------------------------------------------------------------------
+#if DEEP_CRC_TO_MEMORY
+void ScriptEngine::startEndGameTimer(bool bExtendForErrorMsg)
+#else
 void ScriptEngine::startEndGameTimer()
+#endif
 {
+#if DEEP_CRC_TO_MEMORY
+	if (bExtendForErrorMsg)
+	{
+		m_endGameTimer = LOGICFRAMES_PER_SECOND * 7;
+	}
+	else
+	{
+		m_endGameTimer = FRAMES_TO_SHOW_WIN_LOSE_MESSAGE;
+	}
+#else
 	m_endGameTimer = FRAMES_TO_SHOW_WIN_LOSE_MESSAGE;
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------

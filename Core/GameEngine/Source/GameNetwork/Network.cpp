@@ -166,7 +166,11 @@ public:
 	virtual void attachTransport(Transport *transport) override;
 	virtual void initTransport() override;
 
+#if DEEP_CRC_TO_MEMORY
+	virtual void setSawCRCMismatch(const UnicodeString& strMismatchDetails) override;
+#else
 	virtual void setSawCRCMismatch() override;
+#endif
 	virtual Bool sawCRCMismatch() override { return m_sawCRCMismatch; }
 	virtual Bool isPlayerConnected( Int playerID ) override;
 
@@ -364,13 +368,26 @@ void Network::init()
 #endif
 }
 
+#if DEEP_CRC_TO_MEMORY
+void Network::setSawCRCMismatch(const UnicodeString& strMismatchDetails)
+#else
 void Network::setSawCRCMismatch()
+#endif
 {
 	m_sawCRCMismatch = TRUE;
 
 	TheScriptActions->closeWindows( TRUE );
+#if DEEP_CRC_TO_MEMORY
+	m_messageWindow = MessageBoxOk(UnicodeString(L"Mismatch Occurred"), strMismatchDetails, nullptr);
+#else
 	m_messageWindow = TheWindowManager->winCreateFromScript("Menus/CRCMismatch.wnd");
+#endif
+
+#if DEEP_CRC_TO_MEMORY
+	TheScriptEngine->startEndGameTimer(true);
+#else
 	TheScriptEngine->startEndGameTimer();
+#endif
 
 	TheRecorder->logCRCMismatch();
 

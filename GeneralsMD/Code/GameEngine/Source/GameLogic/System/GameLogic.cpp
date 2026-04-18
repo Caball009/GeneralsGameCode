@@ -2684,21 +2684,67 @@ void GameLogic::processCommandList( CommandList *list )
 #endif // DEBUG_LOGGING
 
 #if DEEP_CRC_TO_MEMORY
-			// disabled for now because it's largely hidden behind the mismatch window
-			/*
-			TheInGameUI->message("CRC Mismatch - saw %d CRCs from %d players", m_cachedCRCs.size(), numPlayers);
+			// provide more details
+			UnicodeString strMismatchDetails;
+			strMismatchDetails.format(L"GameLogic frame %d, latest frame %d, GetGameLogicRandomSeedCRC was %d\nHad %d CRCs from %d players\nMismatched Players:\n",
+				TheGameLogic->getFrame(),
+				TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1,
+				GetGameLogicRandomSeedCRC(),
+				m_cachedCRCs.size(),
+				numPlayers);
+
+			// determine who is at fault
+			std::map<UnsignedInt, int> mapCRCOccurences;
 			for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
 			{
-				Player* player = ThePlayerList->getNthPlayer(crcIt->first);
-				TheInGameUI->message("CRC from player %d (%ls) = %X", crcIt->first,
-					player ? player->getPlayerDisplayName().str() : L"<NONE>", crcIt->second);
+				// Data to determine who mismatched
+				std::map<UnsignedInt, int>::iterator occurIt = mapCRCOccurences.find(crcIt->second);
+				if (occurIt != mapCRCOccurences.end())
+				{
+					++occurIt->second;
+				}
+				else
+				{
+					mapCRCOccurences[crcIt->second] = 1;
+				}
 			}
-			*/
+
+			// determine who mismatched
+			// take the 'most frequent' CRC as the correct one, everyone else is to blame
+			int biggestCRCCount = -1;
+			UnsignedInt biggestCRC = ~0u;
+
+			for (std::map<UnsignedInt, int>::iterator crcIter = mapCRCOccurences.begin(); crcIter != mapCRCOccurences.end(); ++crcIter)
+			{
+				if (crcIter->second > biggestCRCCount)
+				{
+					biggestCRC = crcIter->first;
+					biggestCRCCount = crcIter->second;
+				}
+			}
+
+			{
+				// show all players
+				for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
+				{
+					// only show users who arent OK, UI isn't huge
+					if (crcIt->second != biggestCRC)
+					{
+						Player* player = ThePlayerList->getNthPlayer(crcIt->first);
+						UnicodeString strPlayerInfo;
+						strPlayerInfo.format(L"player %d (%ls) = %X [MISMATCH]\n", crcIt->first, player ? player->getPlayerDisplayName().str() : L"<NONE>", crcIt->second);
+
+						strMismatchDetails.concat(strPlayerInfo);
+					}
+				}
+			}
 
 			TheGameLogic->writeCRCBuffersToDisk(TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1);
-#endif
 
+			TheNetwork->setSawCRCMismatch(strMismatchDetails);
+#else
 			TheNetwork->setSawCRCMismatch();
+#endif
 		}
 	}
 
@@ -5059,7 +5105,7 @@ void GameLogic::writeCRCBuffersToDisk(UnsignedInt frame) const
 	FILE* fp = fopen(str.str(), "wb");
 	if (fp)
 	{
-		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.4) ]";
+		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.5) ]";
 
 		if (fwrite(&version[0], ARRAY_SIZE(version) - 1, 1, fp) != 1)
 		{
