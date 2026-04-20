@@ -2684,14 +2684,34 @@ void GameLogic::processCommandList( CommandList *list )
 #endif // DEBUG_LOGGING
 
 #if DEEP_CRC_TO_MEMORY
+			UnsignedInt flagPlayersConnected = 0;
+			UnsignedInt flagCRCs = 0;
+
+			{
+				for (Int i = 0; i < MAX_SLOTS; ++i)
+				{
+					if (TheNetwork->isPlayerConnected(i))
+					{
+						flagPlayersConnected |= (1U << i);
+					}
+				}
+
+				for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
+				{
+					flagCRCs |= (1U << (crcIt->first - 2)); // neutral and civilian players take the first two slots
+				}
+			}
+
 			// provide more details
 			UnicodeString strMismatchDetails;
-			strMismatchDetails.format(L"GameLogic frame %d, latest frame %d, GetGameLogicRandomSeedCRC was %d\nHad %d CRCs from %d players\nMismatched Players:\n",
+			strMismatchDetails.format(L"GameLogic frame %d, latest frame %d, GetGameLogicRandomSeedCRC was %d\nHad %d CRCs from %d players\nFlags %d, %d\nMismatched Players:\n",
 				TheGameLogic->getFrame(),
 				TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1,
 				GetGameLogicRandomSeedCRC(),
 				m_cachedCRCs.size(),
-				numPlayers);
+				numPlayers,
+				flagPlayersConnected,
+				flagCRCs);
 
 			// determine who is at fault
 			std::map<UnsignedInt, int> mapCRCOccurences;
