@@ -465,6 +465,13 @@ Int parseJobs(char *args[], int num)
 	return 1;
 }
 
+Int parseReplayCRC(char* args[], int num)
+{
+	TheWritableGlobalData->m_replayOnlyCheckLocalPlayer = TRUE;
+
+	return 1;
+}
+
 Int parseXRes(char *args[], int num)
 {
 	if (num > 1)
@@ -1176,6 +1183,9 @@ static CommandLineParam paramsForEngineInit[] =
 
 	// TheSuperHackers @feature xezon 03/08/2025 Force full viewport for 'Control Bar Pro' Addons like GenTool did it.
 	{ "-forcefullviewport", parseFullViewport },
+
+	// TheSuperHackers @feature Caball009 24/04/2026 Enable checking only the CRC messages from the player that recorded a replay.
+	{ "-replayLocalPlayerCRC", parseReplayCRC },
 
 #if defined(RTS_DEBUG)
 	{ "-noaudio", parseNoAudio },

@@ -53,7 +53,61 @@ enum RecorderModeType CPP_11(: Int) {
 	RECORDERMODETYPE_NONE // this is a valid state to be in on the shell map, or in saved games
 };
 
-class CRCInfo;
+// TheSuperHackers @info helmutbuhler 03/04/2025
+// Some info about CRC:
+// In each game, each peer periodically calculates a CRC from the local gamestate and sends that
+// in a message to all peers (including itself) so that everyone can check that the crc is synchronous.
+// In a network game, there is a delay between sending the CRC message and receiving it. This is
+// necessary because if you were to wait each frame for all messages from all peers, things would go
+// horribly slow.
+// But this delay is not a problem for CRC checking because everyone receives the CRC in the same frame
+// and every peer just makes sure all the received CRCs are equal.
+// While playing replays, this is a problem however: The CRC messages in the replays appear on the frame
+// they were received, which can be a few frames delayed if it was a network game. And if we were to
+// compare those with the local gamestate, they wouldn't sync up.
+// So, in order to fix this, we need to queue up our local CRCs,
+// so that we can check it with the crc messages that come later.
+// This class is basically that queue.
+class CRCInfo
+{
+public:
+	struct MismatchData
+	{
+		MismatchData() :
+			mismatched(FALSE),
+			playerIndex(0),
+			queueSize(0),
+			playbackCRC(0),
+			playerCRC(0)
+		{}
+
+		Bool mismatched;
+		Byte playerIndex;
+		UnsignedShort queueSize;
+		UnsignedInt playbackCRC;
+		UnsignedInt playerCRC;
+	};
+
+	CRCInfo();
+	void init(Bool isMultiplayer, Int localPlayerIndex);
+	void addPlaybackCRC(UnsignedInt val);
+	void addPlayerCRC(Int playerIndex, UnsignedInt val);
+	void setSawCRCMismatch();
+	Bool sawCRCMismatch() const;
+	Byte getLocalPlayerIndex() const;
+	MismatchData getMismatchData();
+
+	static Int getPlayerIndexOffset();
+
+protected:
+	UnsignedInt getLargestPlayerQueueSize() const;
+
+	Bool m_skippedOne;
+	Bool m_sawCRCMismatch;
+	Byte m_localPlayerIndex;
+	std::list<UnsignedInt> m_playbackData;
+	std::list<UnsignedInt> m_playerData[MAX_SLOTS];
+};
 
 class RecorderClass : public SubsystemInterface {
 public:
@@ -84,10 +138,12 @@ public:
 #endif
 	Bool isPlaybackInProgress() const;
 
-public:
-	void handleCRCMessage(UnsignedInt newCRC, Int playerIndex, Bool fromPlayback);
+	void handlePlaybackCRCMessage(UnsignedInt newCRC);
+	void handlePlayerCRCMessage(Int playerIndex, UnsignedInt newCRC);
+	void checkForMismatch();
+
 protected:
-	CRCInfo *m_crcInfo;
+	CRCInfo m_crcInfo;
 public:
 
 	// read in info relating to a replay, conditionally setting up m_file for playback

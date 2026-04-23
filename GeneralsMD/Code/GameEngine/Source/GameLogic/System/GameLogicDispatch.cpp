@@ -2045,6 +2045,9 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 		{
 			if (TheNetwork)
 			{
+				if (TheNetwork->sawCRCMismatch())
+					break;
+
 				Int slotIndex = -1;
 				for (Int i=0; i<MAX_SLOTS; ++i)
 				{
@@ -2058,31 +2061,47 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 				if (slotIndex < 0 || !TheNetwork->isPlayerConnected(slotIndex))
 					break;
 
+				const UnsignedInt newCRC = msg->getArgument(0)->integer;
+				//DEBUG_LOG(("Received CRC of %8.8X from %ls on frame %d", newCRC,
+					//msgPlayer->getPlayerDisplayName().str(), m_frame));
+
 				if (msgPlayer->isLocalPlayer())
 				{
 #if defined(RTS_DEBUG)
 					// don't even put this in release, cause someone might hack it.
 					if (!TheDebugIgnoreSyncErrors)
-					{
 #endif
-						m_shouldValidateCRCs = TRUE;
-#if defined(RTS_DEBUG)
-					}
-#endif
+						m_shouldValidateCRCs = CRCMODE_NETWORK;
 				}
 
-				UnsignedInt newCRC = msg->getArgument(0)->integer;
-				//DEBUG_LOG(("Received CRC of %8.8X from %ls on frame %d", newCRC,
-					//msgPlayer->getPlayerDisplayName().str(), m_frame));
 				m_cachedCRCs[msgPlayer->getPlayerIndex()] = newCRC;
 			}
 			else if (TheRecorder && TheRecorder->isPlaybackMode())
 			{
-				UnsignedInt newCRC = msg->getArgument(0)->integer;
-				//DEBUG_LOG(("Saw CRC of %X from player %d.  Our CRC is %X.  Arg count is %d",
+				if (TheRecorder->sawCRCMismatch())
+					break;
+
+				const UnsignedInt newCRC = msg->getArgument(0)->integer;
+				//DEBUG_LOG(("Saw CRC of %X from player %d. Our CRC is %X. Arg count is %d",
 					//newCRC, msgPlayer->getPlayerIndex(), getCRC(), msg->getArgumentCount()));
 
-				TheRecorder->handleCRCMessage(newCRC, msgPlayer->getPlayerIndex(), (msg->getArgument(1)->boolean));
+				DEBUG_ASSERTCRASH(msg->getArgument(1)->boolean == msgPlayer->isLocalPlayer(),
+					("CRC message origin is unexpected; playback message argument doesn't match message player index"));
+
+				if (msgPlayer->isLocalPlayer())
+				{
+					TheRecorder->handlePlaybackCRCMessage(newCRC);
+				}
+				else
+				{
+#if defined(RTS_DEBUG)
+					// don't even put this in release, cause someone might hack it.
+					if (!TheDebugIgnoreSyncErrors)
+#endif
+						m_shouldValidateCRCs = CRCMODE_REPLAY;
+
+					TheRecorder->handlePlayerCRCMessage(msgPlayer->getPlayerIndex(), newCRC);
+				}
 			}
 			break;
 

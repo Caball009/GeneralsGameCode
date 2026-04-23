@@ -293,6 +293,13 @@ private:
 
 private:
 
+	enum CRCValidationMode CPP_11(: UnsignedByte)
+	{
+		CRCMODE_NONE,
+		CRCMODE_NETWORK,
+		CRCMODE_REPLAY,
+	};
+
 	/**
 		overrides to thing template buildable status. doesn't really belong here,
 		but has to go somewhere. (srj)
@@ -312,7 +319,7 @@ private:
 	// CRC cache system -----------------------------------------------------------------------------
 	UnsignedInt	m_CRC;																			///< Cache of previous CRC value
 	std::map<Int, UnsignedInt> m_cachedCRCs;								///< CRCs we've seen this frame
-	Bool m_shouldValidateCRCs;															///< Should we validate CRCs this frame?
+	CRCValidationMode m_shouldValidateCRCs;									///< Should we validate CRCs this frame?
 	//-----------------------------------------------------------------------------------------------
 	//Bool m_loadingScene;
 	Bool m_loadingMap;
