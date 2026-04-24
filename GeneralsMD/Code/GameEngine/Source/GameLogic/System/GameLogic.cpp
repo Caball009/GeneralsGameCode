@@ -2704,10 +2704,9 @@ void GameLogic::processCommandList( CommandList *list )
 
 			// provide more details
 			UnicodeString strMismatchDetails;
-			strMismatchDetails.format(L"GameLogic frame %d, latest frame %d, GetGameLogicRandomSeedCRC was %d\nHad %d CRCs from %d players\nFlags %d, %d\nMismatched Players:\n",
+			strMismatchDetails.format(L"GameLogic frame %d, latest frame %d\nHad %d CRCs from %d players; Flags %d, %d\nMismatched Players:\n",
 				TheGameLogic->getFrame(),
 				TheGameLogic->getFrame() - TheNetwork->getRunAhead() - 1,
-				GetGameLogicRandomSeedCRC(),
 				m_cachedCRCs.size(),
 				numPlayers,
 				flagPlayersConnected,

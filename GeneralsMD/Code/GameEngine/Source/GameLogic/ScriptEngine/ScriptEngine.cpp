@@ -5712,7 +5712,7 @@ void ScriptEngine::startEndGameTimer()
 #if DEEP_CRC_TO_MEMORY
 	if (bExtendForErrorMsg)
 	{
-		m_endGameTimer = LOGICFRAMES_PER_SECOND * 7;
+		m_endGameTimer = LOGICFRAMES_PER_SECOND * 5;
 	}
 	else
 	{
