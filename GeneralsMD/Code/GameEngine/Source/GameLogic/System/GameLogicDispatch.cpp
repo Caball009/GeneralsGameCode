@@ -1946,6 +1946,15 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 			{
 				msgPlayer->killPlayer();
 			}
+
+			// ignore CRC messages when a player is defeated
+			// because there's a mismatch risk at low NET_CRC_INTERVAL values
+			// example: runahead decreases, clients are expected to send more frames
+			// defeated player sends some but not the required number of frames (and CRC messages);
+			// the game mismatches because it only retains the most recent CRC value
+			// and the CRC value from the defeated player is not up-to-date
+			m_shouldValidateCRCs = -1;
+
 			// There is no reason to do any notification here, it now takes place in the victory conditions.
 			// bonehead.
 			break;
@@ -2065,7 +2074,8 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 					if (!TheDebugIgnoreSyncErrors)
 					{
 #endif
-						m_shouldValidateCRCs = TRUE;
+						if (m_shouldValidateCRCs != -1)
+							m_shouldValidateCRCs = 1;
 #if defined(RTS_DEBUG)
 					}
 #endif

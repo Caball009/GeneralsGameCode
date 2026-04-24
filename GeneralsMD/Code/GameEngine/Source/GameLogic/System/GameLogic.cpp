@@ -257,7 +257,7 @@ GameLogic::GameLogic()
 		m_progressCompleteTimeout[i] = 0;
 	}
 
-	m_shouldValidateCRCs = FALSE;
+	m_shouldValidateCRCs = 0;
 
 	m_startNewGame = FALSE;
 
@@ -2622,7 +2622,7 @@ void GameLogic::processDestroyList()
 void GameLogic::processCommandList( CommandList *list )
 {
 	m_cachedCRCs.clear();
-	m_shouldValidateCRCs = FALSE;
+	m_shouldValidateCRCs = 0;
 
 	GameMessage* msg;
 
@@ -2634,7 +2634,7 @@ void GameLogic::processCommandList( CommandList *list )
 		logicMessageDispatcher( msg, nullptr );
 	}
 
-	if (m_shouldValidateCRCs && !TheNetwork->sawCRCMismatch())
+	if (m_shouldValidateCRCs == 1 && !TheNetwork->sawCRCMismatch())
 	{
 		Bool sawCRCMismatch = FALSE;
 		Int numPlayers = 0;
@@ -5124,7 +5124,7 @@ void GameLogic::writeCRCBuffersToDisk(UnsignedInt frame) const
 	FILE* fp = fopen(str.str(), "wb");
 	if (fp)
 	{
-		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.5) ]";
+		constexpr const char version[] = "[ DEEP CRC DATA (VERSION 0.0.6) ]";
 
 		if (fwrite(&version[0], ARRAY_SIZE(version) - 1, 1, fp) != 1)
 		{
