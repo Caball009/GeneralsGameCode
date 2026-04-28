@@ -336,17 +336,18 @@ Bool Transport::doRecv()
 			// Latency simulation
 			if (m_useLatency)
 			{
-				if (m_delayedInBuffer[i].message.length == 0)
+				if (m_delayedInBuffer[bufferIndex].message.length == 0)
 				{
 					// Empty slot; use it
-					m_delayedInBuffer[i].deliveryTime =
+					m_delayedInBuffer[bufferIndex].deliveryTime =
 						now + TheGlobalData->m_latencyAverage +
 						(Int)(TheGlobalData->m_latencyAmplitude * sin(now * TheGlobalData->m_latencyPeriod)) +
 						GameClientRandomValue(-TheGlobalData->m_latencyNoise, TheGlobalData->m_latencyNoise);
-					m_delayedInBuffer[i].message.length = incomingMessage.length;
-					m_delayedInBuffer[i].message.addr = ntohl(from.sin_addr.S_un.S_addr);
-					m_delayedInBuffer[i].message.port = ntohs(from.sin_port);
-					memcpy(&m_delayedInBuffer[i].message, buf, len);
+					m_delayedInBuffer[bufferIndex].message.length = incomingMessage.length;
+					m_delayedInBuffer[bufferIndex].message.addr = ntohl(from.sin_addr.S_un.S_addr);
+					m_delayedInBuffer[bufferIndex].message.port = ntohs(from.sin_port);
+					memcpy(&m_delayedInBuffer[bufferIndex].message, buf, len);
+					++bufferIndex;
 					break;
 				}
 			}
