@@ -459,15 +459,16 @@ void ConnectionManager::destroyGameMessages() {
  * assumption that a command will only be relayed once.
  */
 void ConnectionManager::doRelay() {
-
-	NetPacket *packet = nullptr;
+	// this is done so we don't have to allocate and delete a packet every time we relay a message.
+	static NetPacket* packet = newInstance(NetPacket);
 
 	for (Int i = 0; i < MAX_MESSAGES; ++i) {
 		if (m_transport->m_inBuffer[i].length != 0) {
 			// This transport buffer has yet to be processed.
 
 			// make a NetPacket out of this data so it can be broken up into individual commands.
-			packet = newInstance(NetPacket)(&(m_transport->m_inBuffer[i]));
+			packet->reset();
+			packet->CopyTransportMessage(m_transport->m_inBuffer[i]);
 
 			//DEBUG_LOG(("ConnectionManager::doRelay() - got a packet with %d commands", packet->getNumCommands()));
 			//LOGBUFFER( packet->getData(), packet->getLength() );
@@ -489,10 +490,6 @@ void ConnectionManager::doRelay() {
 				cmd = cmd->getNext();
 			}
 
-			// Delete this packet since we won't be needing it anymore.
-			deleteInstance(packet);
-			packet = nullptr;
-
 			deleteInstance(cmdList);
 			cmdList = nullptr;
 
@@ -512,10 +509,6 @@ void ConnectionManager::doRelay() {
 		}
 		cmd = cmd->getNext();
 	}
-
-	// Delete this packet since we won't be needing it anymore.
-	deleteInstance(packet);
-	packet = nullptr;
 
 	deleteInstance(cmdList);
 	cmdList = nullptr;
