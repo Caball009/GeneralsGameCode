@@ -462,8 +462,8 @@ void ConnectionManager::doRelay() {
 	// this is done so we don't have to allocate and delete a packet every time we relay a message.
 	static NetPacket* packet = newInstance(NetPacket);
 
-	for (Int i = 0; i < MAX_MESSAGES; ++i) {
-		if (m_transport->m_inBuffer[i].length != 0) {
+	for (size_t i = 0; i < ARRAY_SIZE(m_transport->m_inBuffer); ++i) {
+		if (m_transport->m_inBuffer[i].length > 0) {
 			// This transport buffer has yet to be processed.
 
 			// make a NetPacket out of this data so it can be broken up into individual commands.
@@ -494,6 +494,8 @@ void ConnectionManager::doRelay() {
 
 			// signal that this has been processed.
 			m_transport->m_inBuffer[i].length = 0;
+		} else {
+			break;
 		}
 	}
 

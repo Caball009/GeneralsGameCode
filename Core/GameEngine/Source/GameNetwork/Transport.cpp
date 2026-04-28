@@ -211,8 +211,7 @@ Bool Transport::doSend() {
 	}
 
 	// Send all messages
-	int i;
-	for (i=0; i<MAX_MESSAGES; ++i)
+	for (size_t i = 0; i < ARRAY_SIZE(m_outBuffer); ++i)
 	{
 		if (m_outBuffer[i].length != 0)
 		{
@@ -249,7 +248,7 @@ Bool Transport::doSend() {
 	// Latency simulation - deliver anything we're holding on to that is ready
 	if (m_useLatency)
 	{
-		for (i=0; i<MAX_MESSAGES; ++i)
+		for (int i=0; i<MAX_MESSAGES; ++i)
 		{
 			if (m_delayedInBuffer[i].message.length != 0 && m_delayedInBuffer[i].deliveryTime <= now)
 			{
@@ -292,6 +291,7 @@ Bool Transport::doRecv()
 	TransportMessage incomingMessage;
 	unsigned char *buf = (unsigned char *)&incomingMessage;
 	int len = MAX_NETWORK_MESSAGE_LEN;
+	size_t bufferIndex = 0;
 //	DEBUG_LOG(("Transport::doRecv - checking"));
 	while ( (len=m_udpsock->Read(buf, MAX_NETWORK_MESSAGE_LEN, &from)) > 0 )
 	{
@@ -330,7 +330,7 @@ Bool Transport::doRecv()
 		m_incomingPackets[m_statisticsSlot]++;
 		m_incomingBytes[m_statisticsSlot] += len;
 
-		for (int i=0; i<MAX_MESSAGES; ++i)
+		for (; bufferIndex < ARRAY_SIZE(m_inBuffer); ++bufferIndex)
 		{
 #if defined(RTS_DEBUG)
 			// Latency simulation
@@ -353,13 +353,14 @@ Bool Transport::doRecv()
 			else
 			{
 #endif
-				if (m_inBuffer[i].length == 0)
+				if (m_inBuffer[bufferIndex].length == 0)
 				{
 					// Empty slot; use it
-					m_inBuffer[i].length = incomingMessage.length;
-					m_inBuffer[i].addr = ntohl(from.sin_addr.S_un.S_addr);
-					m_inBuffer[i].port = ntohs(from.sin_port);
-					memcpy(&m_inBuffer[i], buf, len);
+					m_inBuffer[bufferIndex].length = incomingMessage.length;
+					m_inBuffer[bufferIndex].addr = ntohl(from.sin_addr.S_un.S_addr);
+					m_inBuffer[bufferIndex].port = ntohs(from.sin_port);
+					memcpy(&m_inBuffer[bufferIndex], buf, len);
+					++bufferIndex;
 					break;
 				}
 #if defined(RTS_DEBUG)
@@ -381,15 +382,13 @@ Bool Transport::doRecv()
 Bool Transport::queueSend(UnsignedInt addr, UnsignedShort port, const UnsignedByte *buf, Int len /*,
 						  NetMessageFlags flags, Int id */)
 {
-	int i;
-
 	if (len < 1 || len > MAX_PACKET_SIZE)
 	{
 		DEBUG_LOG(("Transport::queueSend - Invalid Packet size"));
 		return false;
 	}
 
-	for (i=0; i<MAX_MESSAGES; ++i)
+	for (size_t i = 0; i < ARRAY_SIZE(m_outBuffer); ++i)
 	{
 		if (m_outBuffer[i].length == 0)
 		{
