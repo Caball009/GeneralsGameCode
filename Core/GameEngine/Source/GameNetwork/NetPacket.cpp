@@ -722,8 +722,7 @@ NetCommandList * NetPacket::getCommandList() {
 			break;
 		}
 
-		case 'Z': {
-
+		case NetPacketFieldTypes::Repeat: {
 			++i;
 			// Repeat the last command, doing some funky cool byte-saving stuff
 			if (lastCommand == nullptr) {

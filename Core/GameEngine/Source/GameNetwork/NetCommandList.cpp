@@ -317,7 +317,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 	}
 
 	// Make sure this command isn't already in the list.
-		if (isEqualCommandMsg(tempmsg->getCommand(), msg->getCommand())) {
+	if (isEqualCommandMsg(tempmsg->getCommand(), msg->getCommand())) {
 
 		// This command is already in the list, don't duplicate it.
 		deleteInstance(msg);
