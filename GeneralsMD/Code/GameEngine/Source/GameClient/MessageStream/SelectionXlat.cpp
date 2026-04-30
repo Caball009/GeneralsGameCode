@@ -738,8 +738,6 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			{
 				if (!addToGroup)
 				{
-					// TheSuperHackers @tweak Update the game client but not the game logic.
-					// It isn't required for the latter, as a new group will override the current selection.
 					TheInGameUI->deselectAllDrawables(FALSE);
 				}
 
