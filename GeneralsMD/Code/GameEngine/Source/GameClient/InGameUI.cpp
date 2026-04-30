@@ -5886,7 +5886,7 @@ void InGameUI::selectNextIdleWorker()
 	if(selectThisObject)
 	{
 		DEBUG_ASSERTCRASH(selectThisObject->getContainedBy() == nullptr, ("InGameUI::selectNextIdleWorker Selected idle object should not be contained"));
-		deselectAllDrawables();
+		deselectAllDrawables(FALSE);
 		GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
 
 

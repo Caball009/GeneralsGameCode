@@ -646,7 +646,7 @@ CBCommandStatus ControlBar::processCommandUI( GameWindow *control,
 			}
 
 			//deselect other units
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 
 			// create a new group.
 			GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );

@@ -2585,7 +2585,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// create a new group.
 						GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
@@ -2701,7 +2701,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 						// select the unit
 
 						// create a new group.
@@ -2814,7 +2814,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// select the unit
 						// create a new group.
@@ -2929,7 +2929,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 						// select the unit
 
 						// create a new group.
@@ -2982,7 +2982,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			if ( heroDraw == nullptr )
 				break;
 
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 
 			// create a new group.
 			GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
