@@ -218,18 +218,6 @@ static Bool canSelectWrapper( Drawable *draw, void *userData )
 
 //-----------------------------------------------------------------------------
 /**
- * Deselect all drawables, and emit a "TEAM_DESTROY" message, since
- * the "team" was the group of currently selected units.
- */
-static void deselectAll()
-{
-
-	// deselect it all
-	TheInGameUI->deselectAllDrawables();
-}
-
-//-----------------------------------------------------------------------------
-/**
  * Select the given drawable, without playing its sound.
  * Returns true.
  */
@@ -237,7 +225,7 @@ static Bool selectSingleDrawableWithoutSound( Drawable *draw )
 {
 
 	// since we are single selecting a drawable, unselect everything else
-	deselectAll();
+	TheInGameUI->deselectAllDrawables();
 
 	// do the drawable selection
 	TheInGameUI->selectDrawable( draw );
@@ -953,7 +941,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 					{
 						if( !TheInGameUI->getPreventLeftClickDeselectionInAlternateMouseModeForOneClick() )
 						{
-							deselectAll();
+							TheInGameUI->deselectAllDrawables();
 							m_lastGroupSelGroup = -1;
 						}
 						else
@@ -1020,7 +1008,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 					else if (!TheGlobalData->m_useAlternateMouse)
 					{
 						//No GUI command mode, so deselect everyone if we're in regular mouse mode.
-						deselectAll();
+						TheInGameUI->deselectAllDrawables();
 					}
 				}
 			}
