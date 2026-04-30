@@ -3819,6 +3819,11 @@ void Player::addAIGroupToCurrentSelection(AIGroup *group) {
 	}
 }
 
+Bool Player::isCurrentlySelectedGroupEmpty() const
+{
+	return m_currentSelection->getSizeOfGroup() == 0;
+}
+
 //-------------------------------------------------------------------------------------------------
 /** addTypeOfProductionCostChange adds a production change to the typeof list */
 //-------------------------------------------------------------------------------------------------

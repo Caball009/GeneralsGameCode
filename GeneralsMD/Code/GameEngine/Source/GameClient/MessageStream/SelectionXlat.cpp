@@ -750,7 +750,9 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			{
 				if (!addToGroup)
 				{
-					deselectAll();
+					// TheSuperHackers @tweak Update the game client but not the game logic.
+					// It isn't required for the latter, as a new group will override the current selection.
+					TheInGameUI->deselectAllDrawables(FALSE);
 				}
 
 				GameMessage *newMsg = TheMessageStream->appendMessage(GameMessage::MSG_CREATE_SELECTED_GROUP);

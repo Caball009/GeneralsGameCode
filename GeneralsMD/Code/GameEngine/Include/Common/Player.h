@@ -645,6 +645,9 @@ public:
 	// adds the given AIGroup to the current selection of this player.
 	void addAIGroupToCurrentSelection(AIGroup *group);
 
+	// returns false if player has object(s) currently selected
+	Bool isCurrentlySelectedGroupEmpty() const;
+
 	// return the requested hotkey squad
 	Squad *getHotkeySquad(Int squadNumber);
 
