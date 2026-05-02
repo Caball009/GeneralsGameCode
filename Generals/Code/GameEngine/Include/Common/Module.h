@@ -45,7 +45,6 @@ class Object;
 class Player;
 class Thing;
 class W3DModelDrawModuleData;	// ugh, hack (srj)
-class W3DTreeDrawModuleData; // ugh, hack (srj)
 struct FieldParse;
 
 // TYPES //////////////////////////////////////////////////////////////////////////////////////////
@@ -110,8 +109,6 @@ public:
 
 	// ugh, hack
 	virtual const W3DModelDrawModuleData* getAsW3DModelDrawModuleData() const { return nullptr; }
-	// ugh, hack
-	virtual const W3DTreeDrawModuleData* getAsW3DTreeDrawModuleData() const { return nullptr; }
 	virtual StaticGameLODLevel getMinimumRequiredGameLOD() const { return (StaticGameLODLevel)0;}
 
 	static void buildFieldParse(MultiIniFieldParse& p)
