@@ -50,7 +50,7 @@ class ParticlePanelParticle : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		ParticlePanelParticle(UINT nIDTemplate = ParticlePanelParticle::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -68,7 +68,7 @@ class ParticlePanelDrawable : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		ParticlePanelDrawable(UINT nIDTemplate = ParticlePanelDrawable::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 		void clearAllThingTemplates();
 
 		// if true, updates the UI from the Particle System.
@@ -87,7 +87,7 @@ class ParticlePanelStreak : public ParticlePanelParticle
 		virtual DWORD GetIDD() override { return IDD; }
 		ParticlePanelStreak(UINT nIDTemplate = ParticlePanelStreak::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI

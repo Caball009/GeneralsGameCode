@@ -51,7 +51,7 @@ class VelocityPanelOrtho : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		VelocityPanelOrtho(UINT nIDTemplate = VelocityPanelOrtho::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -69,7 +69,7 @@ class VelocityPanelSphere : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		VelocityPanelSphere(UINT nIDTemplate = VelocityPanelSphere::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -87,7 +87,7 @@ class VelocityPanelHemisphere : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		VelocityPanelHemisphere(UINT nIDTemplate = VelocityPanelHemisphere::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -105,7 +105,7 @@ class VelocityPanelCylinder : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		VelocityPanelCylinder(UINT nIDTemplate = VelocityPanelCylinder::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -123,7 +123,7 @@ class VelocityPanelOutward : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		VelocityPanelOutward(UINT nIDTemplate = VelocityPanelOutward::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI

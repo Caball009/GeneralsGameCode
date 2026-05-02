@@ -51,7 +51,7 @@ class EmissionPanelPoint : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		EmissionPanelPoint(UINT nIDTemplate = EmissionPanelPoint::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -69,7 +69,7 @@ class EmissionPanelLine : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		EmissionPanelLine(UINT nIDTemplate = EmissionPanelLine::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -87,7 +87,7 @@ class EmissionPanelBox : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		EmissionPanelBox(UINT nIDTemplate = EmissionPanelBox::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -105,7 +105,7 @@ class EmissionPanelSphere : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		EmissionPanelSphere(UINT nIDTemplate = EmissionPanelSphere::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
@@ -123,7 +123,7 @@ class EmissionPanelCylinder : public ISwapablePanel
 		virtual DWORD GetIDD() override { return IDD; }
 		EmissionPanelCylinder(UINT nIDTemplate = EmissionPanelCylinder::IDD, CWnd* pParentWnd = nullptr);
 
-		void InitPanel() override;
+		virtual void InitPanel() override;
 
 		// if true, updates the UI from the Particle System.
 		// if false, updates the Particle System from the UI
