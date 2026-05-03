@@ -249,6 +249,7 @@ SelectionTranslator *TheSelectionTranslator = nullptr;
 //-----------------------------------------------------------------------------
 SelectionTranslator::SelectionTranslator()
 {
+	m_pendingDeselection = FALSE;
 	m_leftMouseButtonIsDown = FALSE;
 	m_dragSelecting = FALSE;
 	m_lastGroupSelTime = 0;
@@ -738,6 +739,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			{
 				if (!addToGroup)
 				{
+					m_pendingDeselection = FALSE;
 					TheInGameUI->deselectAllDrawables(FALSE);
 				}
 
@@ -939,7 +941,7 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 					{
 						if( !TheInGameUI->getPreventLeftClickDeselectionInAlternateMouseModeForOneClick() )
 						{
-							TheInGameUI->deselectAllDrawables();
+							m_pendingDeselection = TRUE;
 							m_lastGroupSelGroup = -1;
 						}
 						else
@@ -1316,6 +1318,14 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 			break;
 		}
 #endif
+	}
+
+	// TheSuperHackers @tweak Avoid double deselection when selecting a new object with another object selected,
+	// originally triggered by RAW_MOUSE_LEFT_BUTTON_UP and MOUSE_LEFT_CLICK, respectively.
+	if (msg->getType() == GameMessage::MSG_MOUSE_LEFT_CLICK && m_pendingDeselection)
+	{
+		m_pendingDeselection = FALSE;
+		TheInGameUI->deselectAllDrawables();
 	}
 
 	return disp;

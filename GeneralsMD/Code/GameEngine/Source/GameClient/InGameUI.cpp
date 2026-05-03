@@ -3556,7 +3556,7 @@ void InGameUI::deselectDrawable( Drawable *draw )
 void InGameUI::deselectAllDrawables( Bool updateGameLogic )
 {
 	const DrawableList *selected = getAllSelectedDrawables();
-	const Bool emptyDrawableSelection = selected->empty();
+	const Bool emptySelectedDrawables = selected->empty();
 
 	// loop through all the selected drawables
 	for ( DrawableListCIt it = selected->begin(); it != selected->end(); )
@@ -3579,8 +3579,8 @@ void InGameUI::deselectAllDrawables( Bool updateGameLogic )
 
 	if (updateGameLogic)
 	{
-		// TheSuperHackers @tweak Avoid sending this message when no objects are currently selected.
-		if (!emptyDrawableSelection || !ThePlayerList->getLocalPlayer()->isCurrentlySelectedGroupEmpty())
+		// TheSuperHackers @tweak Only send this message when objects are currently selected.
+		if (!emptySelectedDrawables)
 		{
 			// TheSuperHackers @tweak Originally this message had one boolean argument, but it wasn't used for anything.
 			TheMessageStream->appendMessage(GameMessage::MSG_DESTROY_SELECTED_GROUP);
