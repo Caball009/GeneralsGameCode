@@ -422,7 +422,7 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 		case GameMessage::MSG_TEST_SEQUENTIAL_ORDER:
 		{
 			static int s_seq[MAX_PLAYER_COUNT] = { 0 };
-			static int count = 10;
+			static int count = 100;
 			static GameMessage* s_msg = msg;
 
 			if (s_seq[msg->getPlayerIndex()] == count) {

@@ -217,7 +217,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 		// So saving the placement of the last message inserted can give us a huge boost in
 		// efficiency.
 		NetCommandRef *theNext = m_lastMessageInserted->getNext();
-		/*
+		//*
 		if ((m_lastMessageInserted->getCommand()->getNetCommandType() == msg->getCommand()->getNetCommandType()) &&
 			(m_lastMessageInserted->getCommand()->getPlayerID() == msg->getCommand()->getPlayerID()) &&
 			(m_lastMessageInserted->getCommand()->getID() < msg->getCommand()->getID()) &&
@@ -225,7 +225,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 			 (theNext->getCommand()->getPlayerID() > msg->getCommand()->getPlayerID()) ||
 			 (theNext->getCommand()->getID() > msg->getCommand()->getID())))) {
 		//*/
-		if (shouldInsertAfterLastInsertedMessage(m_lastMessageInserted, msg)) {
+		//if (shouldInsertAfterLastInsertedMessage(m_lastMessageInserted, msg)) {
 			// Make sure this command isn't already in the list.
 			if (isEqualCommandMsg(m_lastMessageInserted->getCommand(), msg->getCommand())) {
 
@@ -345,7 +345,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 
 	// Find the position within the player's section based on the command ID.
 	// If the command type doesn't require a command ID, sort by whatever it should be sorted by.
-	//*
+	/*
 	for (const NetCommandMsg* newMessageCmd = msg->getCommand(); tempmsg != nullptr; tempmsg = tempmsg->getNext()) {
 		if (newMessageCmd->getNetCommandType() != tempmsg->getCommand()->getNetCommandType())
 			break;
@@ -375,7 +375,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 	}
 	//*/
 
-	/*
+	//*
 	while ((tempmsg != nullptr)
 		&& (msg->getCommand()->getNetCommandType() == tempmsg->getCommand()->getNetCommandType())
 		&& (msg->getCommand()->getPlayerID() == tempmsg->getCommand()->getPlayerID())

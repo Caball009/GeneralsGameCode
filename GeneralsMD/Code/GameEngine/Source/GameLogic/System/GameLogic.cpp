@@ -3722,8 +3722,8 @@ void GameLogic::update()
 #endif // DEBUG_CRC
 
 	//
-	static int interval = 5;
-	static int count = 10;
+	static int interval = 1;
+	static int count = 100;
 	if (interval > 0 && m_frame % interval == 0) {
 		for (int i = 1; i <= count; ++i) {
 			GameMessage* msg = TheMessageStream->appendMessage(GameMessage::MSG_TEST_SEQUENTIAL_ORDER);

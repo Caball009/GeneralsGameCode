@@ -113,11 +113,11 @@ UnsignedInt ResolveIP(AsciiString host)
 /**
  * Returns the next network command ID.
  */
+static UnsignedShort commandID = 0;
 UnsignedShort GenerateNextCommandID() {
-	static UnsignedShort commandID = 0;
 	++commandID;
 
-	static bool b = true;
+	static bool b = false;
 	static size_t lo = 150;
 	static size_t hi = 0x7FFF - 150;
 
@@ -129,7 +129,7 @@ UnsignedShort GenerateNextCommandID() {
 		}
 	}
 
-	if (commandID == 0) {
+	if (commandID == 0 || commandID == 65535) {
 		static bool print = true;
 		if (print)
 		{
@@ -138,6 +138,11 @@ UnsignedShort GenerateNextCommandID() {
 	}
 
 	return commandID;
+}
+
+void ResetCommandID()
+{
+	commandID = 0;
 }
 
 /**

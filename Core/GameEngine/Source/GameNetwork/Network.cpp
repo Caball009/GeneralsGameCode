@@ -51,6 +51,7 @@
 #include "GameLogic/ScriptEngine.h"
 #include "Common/Recorder.h"
 #include "GameClient/MessageBox.h"
+#include <GameNetwork/networkutil.h>
 
 
 #if defined(DEBUG_CRC)
@@ -483,6 +484,10 @@ void Network::GetCommandsFromCommandList() {
 Int Network::getExecutionFrame() {
 	Int logicFrame = TheGameLogic->getFrame() + m_runAhead;
 	if (logicFrame > m_lastExecutionFrame) {
+		if (TheGameLogic->getFrame() % static_cast<UnsignedInt>(MAX_FRAMES_AHEAD) == 0) {
+			ResetCommandID();
+		}
+
 		m_lastExecutionFrame = logicFrame;
 		return (logicFrame);
 	}
