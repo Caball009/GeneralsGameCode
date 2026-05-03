@@ -3721,6 +3721,18 @@ void GameLogic::update()
 	Bool generateForSolo = isSoloGameOrReplay && ((m_frame % REPLAY_CRC_INTERVAL) == 0);
 #endif // DEBUG_CRC
 
+	//
+	static int interval = 5;
+	static int count = 10;
+	if (interval > 0 && m_frame % interval == 0) {
+		for (int i = 1; i <= count; ++i) {
+			GameMessage* msg = TheMessageStream->appendMessage(GameMessage::MSG_TEST_SEQUENTIAL_ORDER);
+			msg->appendIntegerArgument(i);
+			//msg->appendIntegerArgument(m_frame);
+		}
+	}
+	//
+
 	if (generateForSolo || generateForMP)
 	{
 		m_CRC = getCRC( CRC_RECALC );

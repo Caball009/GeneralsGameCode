@@ -419,6 +419,31 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 	GameMessage::Type msgType = msg->getType();
 	switch( msgType )
 	{
+		case GameMessage::MSG_TEST_SEQUENTIAL_ORDER:
+		{
+			static int s_seq[MAX_PLAYER_COUNT] = { 0 };
+			static int count = 10;
+			static GameMessage* s_msg = msg;
+
+			if (s_seq[msg->getPlayerIndex()] == count) {
+				s_seq[msg->getPlayerIndex()] = 0;
+			}
+
+			const int seq = msg->getArgument(0)->integer;
+			if (s_seq[msg->getPlayerIndex()] + 1 != seq) {
+				const UnicodeString mismatchDetailsStr = TheGameText->FETCH_OR_SUBSTITUTE(
+					"GUI:SequentialOrderMismatch", L"Frame:%d Player:%ls --- Expected seq %d, Actual seq %d!");
+				TheInGameUI->message(mismatchDetailsStr, TheGameLogic->getFrame(), msgPlayer->getPlayerDisplayName().str(), s_seq[msg->getPlayerIndex()] + 1, seq);
+
+				s_seq[msg->getPlayerIndex()] = seq;
+			} else {
+				s_seq[msg->getPlayerIndex()] += 1;
+			}
+
+			s_msg = msg;
+		}
+		break;
+
 		//---------------------------------------------------------------------------------------------
 		case GameMessage::MSG_NEW_GAME:
 		{

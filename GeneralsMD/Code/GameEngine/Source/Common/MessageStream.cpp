@@ -1227,7 +1227,15 @@ void CommandList::appendMessageList( GameMessage *list )
 	for( msg = list; msg; msg = next )
 	{
 		next = msg->next();
-		appendMessage( msg );
+
+		/*
+		if (msg->getType() == GameMessage::MSG_TEST_SEQUENTIAL_ORDER
+			|| msg->getType() < GameMessage::MSG_BEGIN_NETWORK_MESSAGES
+			|| msg->getType() > GameMessage::MSG_END_NETWORK_MESSAGES)
+		//*/
+		{
+			appendMessage( msg );
+		}
 	}
 }
 

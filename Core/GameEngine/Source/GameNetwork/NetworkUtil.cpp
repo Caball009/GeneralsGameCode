@@ -27,6 +27,9 @@
 
 #include "GameNetwork/networkutil.h"
 
+#include "GameClient/InGameUI.h"
+#include "GameClient/ClientInstance.h"
+
 // TheSuperHackers @tweak Mauller 26/08/2025 reduce the minimum runahead from 10
 // This lets network games run at latencies down to 133ms when the network conditions allow
 Int MIN_LOGIC_FRAMES = 5;
@@ -111,8 +114,29 @@ UnsignedInt ResolveIP(AsciiString host)
  * Returns the next network command ID.
  */
 UnsignedShort GenerateNextCommandID() {
-	static UnsignedShort commandID = 64000;
+	static UnsignedShort commandID = 0;
 	++commandID;
+
+	static bool b = true;
+	static size_t lo = 150;
+	static size_t hi = 0x7FFF - 150;
+
+	if (b) {
+		if (commandID >= lo && commandID <= hi) {
+			commandID = hi;
+		} else if (commandID >= lo + 0x7FFF && commandID <= hi + 0x7FFF) {
+			commandID = hi + 0x7FFF;
+		}
+	}
+
+	if (commandID == 0) {
+		static bool print = true;
+		if (print)
+		{
+			TheInGameUI->message("Client %d commandID overflowed", rts::ClientInstance::getInstanceId());
+		}
+	}
+
 	return commandID;
 }
 

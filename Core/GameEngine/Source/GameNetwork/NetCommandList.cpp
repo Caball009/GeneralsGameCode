@@ -122,6 +122,74 @@ void NetCommandList::reset() {
 	m_lastMessageInserted = nullptr;
 }
 
+static Bool shouldInsertAfterLastInsertedMessage(NetCommandRef* lastMessageInserted, NetCommandRef* msg)
+{
+	if (lastMessageInserted->getCommand()->getNetCommandType() != msg->getCommand()->getNetCommandType()) {
+		return false;
+	}
+
+	if (lastMessageInserted->getCommand()->getPlayerID() != msg->getCommand()->getPlayerID()) {
+		return false;
+	}
+
+	{
+		const UnsignedShort prevID = lastMessageInserted->getCommand()->getID();
+		const UnsignedShort curID = msg->getCommand()->getID();
+
+		if (DoesCommandRequireACommandID(lastMessageInserted->getCommand()->getNetCommandType())
+			|| DoesCommandRequireACommandID(msg->getCommand()->getNetCommandType())) {
+			const Bool wrapAround = std::abs(static_cast<int>(curID) - static_cast<int>(prevID)) > MAXSHORT;
+			if (wrapAround) {
+				if (prevID <= curID) {
+					return false;
+				}
+			} else {
+				if (prevID >= curID) {
+					return false;
+				}
+			}
+		} else {
+			if (prevID >= curID) {
+				return false;
+			}
+		}
+	}
+
+	NetCommandRef* theNext = lastMessageInserted->getNext();
+	if (theNext) {
+		if (theNext->getCommand()->getNetCommandType() <= msg->getCommand()->getNetCommandType()) {
+			return false;
+		}
+
+		if (theNext->getCommand()->getPlayerID() <= msg->getCommand()->getPlayerID()) {
+			return false;
+		}
+
+		const UnsignedShort curID = msg->getCommand()->getID();
+		const UnsignedShort nextID = theNext->getCommand()->getID();
+
+		if (DoesCommandRequireACommandID(theNext->getCommand()->getNetCommandType())
+			|| DoesCommandRequireACommandID(msg->getCommand()->getNetCommandType())) {
+			const Bool wrapAround = std::abs(static_cast<int>(nextID) - static_cast<int>(curID)) > MAXSHORT;
+			if (wrapAround) {
+				if (curID >= nextID) {
+					return false;
+				}
+			} else {
+				if (curID <= nextID) {
+					return false;
+				}
+			}
+		} else {
+			if (curID >= nextID) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 /**
  * Insert sorts msg.  Assumes that all the previous message inserts were done using this function.
  * The message is sorted in based first on command type, then player id, and then command id.
@@ -149,13 +217,15 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 		// So saving the placement of the last message inserted can give us a huge boost in
 		// efficiency.
 		NetCommandRef *theNext = m_lastMessageInserted->getNext();
+		/*
 		if ((m_lastMessageInserted->getCommand()->getNetCommandType() == msg->getCommand()->getNetCommandType()) &&
 			(m_lastMessageInserted->getCommand()->getPlayerID() == msg->getCommand()->getPlayerID()) &&
 			(m_lastMessageInserted->getCommand()->getID() < msg->getCommand()->getID()) &&
 			((theNext == nullptr) || ((theNext->getCommand()->getNetCommandType() > msg->getCommand()->getNetCommandType()) ||
 			 (theNext->getCommand()->getPlayerID() > msg->getCommand()->getPlayerID()) ||
 			 (theNext->getCommand()->getID() > msg->getCommand()->getID())))) {
-
+		//*/
+		if (shouldInsertAfterLastInsertedMessage(m_lastMessageInserted, msg)) {
 			// Make sure this command isn't already in the list.
 			if (isEqualCommandMsg(m_lastMessageInserted->getCommand(), msg->getCommand())) {
 
@@ -275,9 +345,44 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 
 	// Find the position within the player's section based on the command ID.
 	// If the command type doesn't require a command ID, sort by whatever it should be sorted by.
-	while ((tempmsg != nullptr) && (msg->getCommand()->getNetCommandType() == tempmsg->getCommand()->getNetCommandType()) && (msg->getCommand()->getPlayerID() == tempmsg->getCommand()->getPlayerID()) && (msg->getCommand()->getSortNumber() > tempmsg->getCommand()->getSortNumber())) {
+	//*
+	for (const NetCommandMsg* newMessageCmd = msg->getCommand(); tempmsg != nullptr; tempmsg = tempmsg->getNext()) {
+		if (newMessageCmd->getNetCommandType() != tempmsg->getCommand()->getNetCommandType())
+			break;
+		if (newMessageCmd->getPlayerID() != tempmsg->getCommand()->getPlayerID())
+			break;
+
+		const UnsignedShort prevID = tempmsg->getCommand()->getSortNumber();
+		const UnsignedShort curID = msg->getCommand()->getSortNumber();
+
+		if (DoesCommandRequireACommandID(newMessageCmd->getNetCommandType())
+			|| DoesCommandRequireACommandID(tempmsg->getCommand()->getNetCommandType())) {
+			const Bool wrapAround = std::abs(static_cast<int>(curID) - static_cast<int>(prevID)) > MAXSHORT;
+			if (wrapAround) {
+				if (prevID <= curID) {
+					break;
+				}
+			} else {
+				if (prevID >= curID) {
+					break;
+				}
+			}
+		} else {
+			if (prevID >= curID) {
+				break;
+			}
+		}
+	}
+	//*/
+
+	/*
+	while ((tempmsg != nullptr)
+		&& (msg->getCommand()->getNetCommandType() == tempmsg->getCommand()->getNetCommandType())
+		&& (msg->getCommand()->getPlayerID() == tempmsg->getCommand()->getPlayerID())
+		&& (msg->getCommand()->getSortNumber() > tempmsg->getCommand()->getSortNumber())) {
 		tempmsg = tempmsg->getNext();
 	}
+	//*/
 
 	if (tempmsg == nullptr) {
 		// Make sure this command isn't already in the list.
@@ -317,7 +422,7 @@ NetCommandRef * NetCommandList::addMessage(NetCommandMsg *cmdMsg) {
 	}
 
 	// Make sure this command isn't already in the list.
-		if (isEqualCommandMsg(tempmsg->getCommand(), msg->getCommand())) {
+	if (isEqualCommandMsg(tempmsg->getCommand(), msg->getCommand())) {
 
 		// This command is already in the list, don't duplicate it.
 		deleteInstance(msg);
