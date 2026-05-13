@@ -2236,6 +2236,11 @@ void MilesAudioManager::processRequestList()
 
 		if (!req->m_requiresCheckForSample || checkForSample(req)) {
 			processRequest(req);
+
+			// TheSuperHackers @info Deallocating the audio event is no longer responsibility of this request,
+			// because it was just processed. Reset fields to avoid double free.
+			req->m_usePendingEvent = false;
+			req->m_pendingEvent = nullptr;
 		}
 		deleteInstance(req);
 		it = m_audioRequests.erase(it);
