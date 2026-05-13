@@ -236,15 +236,15 @@ int HRawAnimClass::Load_W3D(ChunkLoadClass & cload)
 	/*
 	** Now, read in all of the other chunks (motion channels).
 	*/
-	MotionChannelClass * newchan;
-	BitChannelClass * newbitchan;
-
 	while (cload.Open_Chunk()) {
 
 		switch (cload.Cur_Chunk_ID()) {
 
 			case W3D_CHUNK_ANIMATION_CHANNEL:
+			{
+				MotionChannelClass* newchan = nullptr;
 				if (!read_channel(cload,&newchan,pre30)) {
+					delete newchan;
 					goto Error;
 				}
 
@@ -258,9 +258,13 @@ int HRawAnimClass::Load_W3D(ChunkLoadClass & cload)
 					delete newchan;
 				}
 				break;
+				}
 
 			case W3D_CHUNK_BIT_CHANNEL:
+			{
+				BitChannelClass* newbitchan = nullptr;
 				if (!read_bit_channel(cload,&newbitchan,pre30)) {
+					delete newbitchan;
 					goto Error;
 				}
 
@@ -274,6 +278,7 @@ int HRawAnimClass::Load_W3D(ChunkLoadClass & cload)
 					delete newbitchan;
 				}
 				break;
+			}
 
 			default:
 				break;

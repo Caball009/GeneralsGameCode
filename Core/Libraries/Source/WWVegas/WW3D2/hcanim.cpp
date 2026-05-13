@@ -293,10 +293,6 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 	/*
 	** Now, read in all of the other chunks (motion channels).
 	*/
-	TimeCodedMotionChannelClass * tc_chan;
-	AdaptiveDeltaMotionChannelClass * ad_chan;
-	TimeCodedBitChannelClass * newbitchan;
-
 	while (cload.Open_Chunk()) {
 
 		switch (cload.Cur_Chunk_ID()) {
@@ -306,8 +302,10 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 				switch ( Flavor ) {
 
 					case ANIM_FLAVOR_TIMECODED:
-
+					{
+						TimeCodedMotionChannelClass* tc_chan = nullptr;
 						if (!read_channel(cload,&tc_chan)) {
+							delete tc_chan;
 							goto Error;
 						}
 						if (tc_chan->Get_Pivot() < NumNodes) {
@@ -322,9 +320,13 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 						}
 
 						break;
+					}
 
 					case ANIM_FLAVOR_ADAPTIVE_DELTA:
+					{
+						AdaptiveDeltaMotionChannelClass* ad_chan = nullptr;
 						if (!read_channel(cload,&ad_chan)) {
+							delete ad_chan;
 							goto Error;
 						}
 						if (ad_chan->Get_Pivot() < NumNodes) {
@@ -338,11 +340,15 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 							WWDEBUG_SAY(("ERROR! animation %s indexes a bone not present in the model. Please re-export!",Name));
 						}
 						break;
+					}
 				}
 				break;
 
 			case W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
+			{
+				TimeCodedBitChannelClass* newbitchan = nullptr;
 				if (!read_bit_channel(cload,&newbitchan)) {
+					delete newbitchan;
 					goto Error;
 				}
 				if (newbitchan->Get_Pivot() < NumNodes) {
@@ -357,6 +363,7 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 				}
 
 				break;
+			}
 
 			default:
 				break;
