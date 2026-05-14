@@ -262,18 +262,36 @@ void GameLogic::clearGameData( Bool showScoreScreen )
 	TheScriptActions->closeWindows(FALSE); // Close victory or defeat windows.
 
 	Bool shellGame = FALSE;
-	if ((!isInShellGame() || !isInGame()) && showScoreScreen && !TheGlobalData->m_headless)
+	if (showScoreScreen)
 	{
-		shellGame = TRUE;
-		TheTransitionHandler->setGroup("FadeWholeScreen");
-		TheShell->push("Menus/ScoreScreen.wnd");
-		TheShell->showShell(FALSE); // by passing in false, we don't want to run the Init on the shell screen we just pushed on
-		TheTransitionHandler->reverse("FadeWholeScreen");
+		if ((!isInShellGame() || !isInGame()) && !TheGlobalData->m_headless)
+		{
+			shellGame = TRUE;
+			TheTransitionHandler->setGroup("FadeWholeScreen");
+			TheShell->push("Menus/ScoreScreen.wnd");
+			TheShell->showShell(FALSE); // by passing in false, we don't want to run the Init on the shell screen we just pushed on
+			TheTransitionHandler->reverse("FadeWholeScreen");
 
-		void FixupScoreScreenMovieWindow();
-		FixupScoreScreenMovieWindow();
+			void FixupScoreScreenMovieWindow();
+			FixupScoreScreenMovieWindow();
 
-		destroyQuitMenu();
+			destroyQuitMenu();
+		}
+
+		// TheSuperHackers @info The game info may have been allocated on save game load.
+		// Deallocate it here until there's a better place to do it.
+		if (TheSkirmishGameInfo)
+		{
+			delete TheSkirmishGameInfo;
+			TheSkirmishGameInfo = nullptr;
+			TheGameInfo = nullptr;
+		}
+		else if (TheChallengeGameInfo)
+		{
+			delete TheChallengeGameInfo;
+			TheChallengeGameInfo = nullptr;
+			TheGameInfo = nullptr;
+		}
 	}
 
 	TheGameEngine->reset();
