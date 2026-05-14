@@ -116,10 +116,13 @@ static_assert(ARRAY_SIZE(TheDrawableIconNames) == MAX_ICONS + 1, "Incorrect arra
  *
  * OK, so it's a bit of a hack, but it saves memory in every Drawable
  */
-static DynamicAudioEventInfo* marker = newInstance(DynamicAudioEventInfo);
+class DynamicAudioEventInfoStatic : public DynamicAudioEventInfo
+{};
+static DynamicAudioEventInfoStatic s_noSoundMarker;
+
 static DynamicAudioEventInfo* getNoSoundMarker()
 {
-	return marker;
+	return &s_noSoundMarker;
 }
 
 

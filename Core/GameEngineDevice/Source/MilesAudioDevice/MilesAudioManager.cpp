@@ -2238,7 +2238,7 @@ void MilesAudioManager::processRequestList()
 			processRequest(req);
 
 			// TheSuperHackers @info Deallocating the audio event is no longer responsibility of this request,
-			// because it was just processed. Reset fields to avoid double free.
+			// because it was just processed. Reset fields to avoid use after free and double free.
 			req->m_usePendingEvent = false;
 			req->m_pendingEvent = nullptr;
 		}

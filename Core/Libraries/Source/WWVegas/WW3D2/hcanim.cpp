@@ -305,7 +305,6 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 					{
 						TimeCodedMotionChannelClass* tc_chan = nullptr;
 						if (!read_channel(cload,&tc_chan)) {
-							delete tc_chan;
 							goto Error;
 						}
 						if (tc_chan->Get_Pivot() < NumNodes) {
@@ -326,7 +325,6 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 					{
 						AdaptiveDeltaMotionChannelClass* ad_chan = nullptr;
 						if (!read_channel(cload,&ad_chan)) {
-							delete ad_chan;
 							goto Error;
 						}
 						if (ad_chan->Get_Pivot() < NumNodes) {
@@ -348,7 +346,6 @@ int HCompressedAnimClass::Load_W3D(ChunkLoadClass & cload)
 			{
 				TimeCodedBitChannelClass* newbitchan = nullptr;
 				if (!read_bit_channel(cload,&newbitchan)) {
-					delete newbitchan;
 					goto Error;
 				}
 				if (newbitchan->Get_Pivot() < NumNodes) {
@@ -394,20 +391,32 @@ Error:
  *=============================================================================================*/
 bool HCompressedAnimClass::read_channel(ChunkLoadClass & cload,TimeCodedMotionChannelClass * * newchan)
 {
-	*newchan = W3DNEW TimeCodedMotionChannelClass;
-	bool result = (*newchan)->Load_W3D(cload);
-
-	return result;
-
+	TimeCodedMotionChannelClass* channel = W3DNEW TimeCodedMotionChannelClass;
+	if (channel->Load_W3D(cload))
+	{
+		*newchan = channel;
+		return true;
+	}
+	else
+	{
+		delete channel;
+		return false;
+	}
 }
 
 bool HCompressedAnimClass::read_channel(ChunkLoadClass & cload,AdaptiveDeltaMotionChannelClass * * newchan)
 {
-	*newchan = W3DNEW AdaptiveDeltaMotionChannelClass;
-	bool result = (*newchan)->Load_W3D(cload);
-
-	return result;
-
+	AdaptiveDeltaMotionChannelClass* channel = W3DNEW AdaptiveDeltaMotionChannelClass;
+	if (channel->Load_W3D(cload))
+	{
+		*newchan = channel;
+		return true;
+	}
+	else
+	{
+		delete channel;
+		return false;
+	}
 }
 
 
@@ -490,11 +499,17 @@ void HCompressedAnimClass::add_channel(AdaptiveDeltaMotionChannelClass * newchan
  *=============================================================================================*/
 bool HCompressedAnimClass::read_bit_channel(ChunkLoadClass & cload,TimeCodedBitChannelClass * * newchan)
 {
-	*newchan = W3DNEW TimeCodedBitChannelClass;
-	bool result = (*newchan)->Load_W3D(cload);
-
-	return result;
-
+	TimeCodedBitChannelClass* channel = W3DNEW TimeCodedBitChannelClass;
+	if (channel->Load_W3D(cload))
+	{
+		*newchan = channel;
+		return true;
+	}
+	else
+	{
+		delete channel;
+		return false;
+	}
 }
 
 

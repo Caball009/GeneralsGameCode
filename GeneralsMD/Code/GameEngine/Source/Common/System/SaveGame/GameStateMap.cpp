@@ -208,8 +208,6 @@ static void extractAndSaveMap( AsciiString mapToSave, Xfer *xfer )
 	if( buffer == nullptr )
 	{
 
-		delete[] buffer;
-
 		DEBUG_CRASH(( "extractAndSaveMap - Unable to allocate buffer for file '%s'", mapToSave.str() ));
 		throw SC_INVALID_DATA;
 
