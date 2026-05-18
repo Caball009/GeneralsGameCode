@@ -1409,7 +1409,12 @@ void SpecialAbilityUpdate::triggerAbilityEffect()
             sys->attachToObject(target);
             sys->setPosition( &offs );
             sys->setSystemLifetime( data->m_effectDuration * durationInterleaveFactor ); //lifetime of the system, not the particles
-
+          }
+          else
+          {
+            // probably needs a TSH comment stating that the side effects, the changes to the logical seeds, are the sole reason for this branch
+            Coord3D offs = { 0,0,0 };
+            target->getGeometryInfo().makeRandomOffsetWithinFootprint(offs);
           }
         }
       }

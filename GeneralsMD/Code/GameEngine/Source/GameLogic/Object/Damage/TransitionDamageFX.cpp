@@ -387,12 +387,10 @@ void TransitionDamageFX::onBodyDamageStateChange( const DamageInfo* damageInfo,
 				if( lastDamageInfo == nullptr ||
 						getDamageTypeFlag( modData->m_damageParticleTypes, lastDamageInfo->in.m_damageType ) )
 				{
-
 					// create a new particle system based on the template provided
 					ParticleSystem* pSystem = TheParticleSystemManager->createParticleSystem( pSystemT );
 					if( pSystem )
 					{
-
 						// get the what is the position we're going to played the effect at
 						pos = getLocalEffectPos( &modData->m_particleSystem[ newState ][ i ].locInfo, draw );
 
@@ -409,9 +407,12 @@ void TransitionDamageFX::onBodyDamageStateChange( const DamageInfo* damageInfo,
 
 						// save the id of this particle system so we can remove it later if it still exists
 						m_particleSystemID[ newState ][ i ] = pSystem->getSystemID();
-
 					}
-
+					else
+					{
+						// probably needs a TSH comment stating that the side effects, the changes to the logical seeds, are the sole reason for this branch
+						static_cast<void>(getLocalEffectPos(&modData->m_particleSystem[newState][i].locInfo, draw));
+					}
 				}
 
 			}

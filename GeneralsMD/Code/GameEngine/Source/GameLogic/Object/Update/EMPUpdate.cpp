@@ -304,9 +304,7 @@ void EMPUpdate::doDisableAttack()
 
 					for (UnsignedInt e = 0 ; e < emitterCount; ++e)
 					{
-
 						ParticleSystem *sys = TheParticleSystemManager->createParticleSystem(tmp);
-
 						if (sys)
 						{
 							Coord3D offs = {0,0,0};
@@ -329,6 +327,14 @@ void EMPUpdate::doDisableAttack()
 							sys->setPosition( &offs );
 							sys->setSystemLifetime(MAX(0, data->m_disabledDuration - 30));
 							sys->setInitialDelay(GameLogicRandomValue(1,100));
+						}
+						else
+						{
+							// probably needs a TSH comment stating that the side effects, the changes to the logical seeds, are the sole reason for this branch
+							Coord3D offs = { 0,0,0 };
+							curVictim->getGeometryInfo().makeRandomOffsetWithinFootprint(offs);
+							static_cast<void>(GameLogicRandomValue(0, 1));
+							static_cast<void>(GameLogicRandomValue(0, 1));
 						}
 					}
 				}
