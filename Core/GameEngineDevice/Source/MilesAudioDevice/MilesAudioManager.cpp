@@ -652,14 +652,14 @@ void MilesAudioManager::pauseAmbient( Bool shouldPause )
 }
 
 //-------------------------------------------------------------------------------------------------
-void MilesAudioManager::playAudioEvent( AudioEventRTS *event )
+Bool MilesAudioManager::playAudioEvent( AudioEventRTS *event )
 {
 #ifdef INTENSIVE_AUDIO_DEBUG
 	DEBUG_LOG(("MILES (%d) - Processing play request: %d (%s)", TheGameLogic->getFrame(), event->getPlayingHandle(), event->getEventName().str()));
 #endif
 	const AudioEventInfo *info = event->getAudioEventInfo();
 	if (!info) {
-		return;
+		return FALSE; // has not taken ownership of the audio event
 	}
 
 	std::list<PlayingAudio *>::iterator it;
@@ -882,6 +882,8 @@ void MilesAudioManager::playAudioEvent( AudioEventRTS *event )
 	if (audio) {
 		releasePlayingAudio(audio);
 	}
+
+	return TRUE; // has taken ownership of the audio event
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -2930,7 +2932,12 @@ void MilesAudioManager::processRequest( AudioRequest *req )
 	{
 		case AR_Play:
 		{
-			playAudioEvent(req->m_pendingEvent);
+			if (playAudioEvent(req->m_pendingEvent))
+			{
+				// TheSuperHackers @info The audio event is no longer owned by this request, because it was just processed.
+				// Reset pointer to prevent the destructor of the request from calling delete on the audio event.
+				req->m_pendingEvent = nullptr;
+			}
 			break;
 		}
 		case AR_Pause:
