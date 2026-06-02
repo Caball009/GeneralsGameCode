@@ -1171,13 +1171,9 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 			{
 				if (LANbuttonPushed)
 					break;
-
-				LANGameInfo* myGame = TheLAN->GetMyGame();
-				if (myGame->isGameInProgress())
-					return MSG_IGNORED;
-
 				GameWindow *control = (GameWindow *)mData1;
 				Int controlID = control->winGetWindowId();
+				LANGameInfo *myGame = TheLAN->GetMyGame();
 
         if ( controlID == comboBoxStartingCashID )
         {
@@ -1243,11 +1239,6 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 			{
 				if (LANbuttonPushed)
 					break;
-
-				LANGameInfo* myGame = TheLAN->GetMyGame();
-				if (myGame->isGameInProgress())
-					return MSG_IGNORED;
-
 				GameWindow *control = (GameWindow *)mData1;
 				Int controlID = control->winGetWindowId();
 
@@ -1298,7 +1289,7 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 						TheLAN->RequestAccept();
 
 						// Disable the accept button
-						EnableAcceptControls(TRUE, myGame, comboBoxPlayer, comboBoxColor, comboBoxPlayerTemplate,
+						EnableAcceptControls(TRUE, TheLAN->GetMyGame(), comboBoxPlayer, comboBoxColor, comboBoxPlayerTemplate,
 							comboBoxTeam, buttonAccept, buttonStart, buttonMapStartPosition);
 
 					}
@@ -1313,10 +1304,11 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 					{
 						if (controlID == buttonMapStartPositionID[i])
 						{
+							LANGameInfo *game = TheLAN->GetMyGame();
 							Int playerIdxInPos = -1;
 							for (Int j=0; j<MAX_SLOTS; ++j)
 							{
-								LANGameSlot *slot = myGame->getLANSlot(j);
+								LANGameSlot *slot = game->getLANSlot(j);
 								if (slot && slot->getStartPos() == i)
 								{
 									playerIdxInPos = j;
@@ -1325,8 +1317,8 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 							}
 							if (playerIdxInPos >= 0)
 							{
-								LANGameSlot *slot = myGame->getLANSlot(playerIdxInPos);
-								if (playerIdxInPos == myGame->getLocalSlotNum() || (myGame->amIHost() && slot && slot->isAI()))
+								LANGameSlot *slot = game->getLANSlot(playerIdxInPos);
+								if (playerIdxInPos == game->getLocalSlotNum() || (game->amIHost() && slot && slot->isAI()))
 								{
 									// it's one of my type.  Try to change it.
 									Int nextPlayer = getNextSelectablePlayer(playerIdxInPos+1);
@@ -1342,7 +1334,7 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 								// nobody in the slot - put us in
 								Int nextPlayer = getNextSelectablePlayer(0);
 								if (nextPlayer < 0)
-									nextPlayer = getFirstSelectablePlayer(myGame);
+									nextPlayer = getFirstSelectablePlayer(game);
 								handleStartPositionSelection(nextPlayer, i);
 							}
 						}
@@ -1357,21 +1349,17 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 			if (LANbuttonPushed)
 				break;
 
-			LANGameInfo* myGame = TheLAN->GetMyGame();
-			if (myGame->isGameInProgress())
-				return MSG_IGNORED;
-
 			GameWindow *control = (GameWindow *)mData1;
 			Int controlID = control->winGetWindowId();
-
 			for (Int i = 0; i < MAX_SLOTS; i++)
 			{
 				if (controlID == buttonMapStartPositionID[i])
 				{
+					LANGameInfo *game = TheLAN->GetMyGame();
 					Int playerIdxInPos = -1;
 					for (Int j=0; j<MAX_SLOTS; ++j)
 					{
-						LANGameSlot *slot = myGame->getLANSlot(j);
+						LANGameSlot *slot = game->getLANSlot(j);
 						if (slot && slot->getStartPos() == i)
 						{
 							playerIdxInPos = j;
@@ -1380,8 +1368,8 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 					}
 					if (playerIdxInPos >= 0)
 					{
-						LANGameSlot *slot = myGame->getLANSlot(playerIdxInPos);
-						if (playerIdxInPos == myGame->getLocalSlotNum() || (myGame->amIHost() && slot && slot->isAI()))
+						LANGameSlot *slot = game->getLANSlot(playerIdxInPos);
+						if (playerIdxInPos == game->getLocalSlotNum() || (game->amIHost() && slot && slot->isAI()))
 						{
 							// it's one of my type.  Remove it.
 							handleStartPositionSelection(playerIdxInPos, -1);
@@ -1396,11 +1384,6 @@ WindowMsgHandledType LanGameOptionsMenuSystem( GameWindow *window, UnsignedInt m
 			{
 				if (LANbuttonPushed)
 					break;
-
-				LANGameInfo* myGame = TheLAN->GetMyGame();
-				if (myGame->isGameInProgress())
-					return MSG_IGNORED;
-
 				GameWindow *control = (GameWindow *)mData1;
 				Int controlID = control->winGetWindowId();
 
