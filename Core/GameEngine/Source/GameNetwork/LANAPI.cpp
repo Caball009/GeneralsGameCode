@@ -591,8 +591,8 @@ void LANAPI::update()
 
 		if (m_gameStartSeconds == 1)
 		{
-			// TheSuperHackers @bugfix Disable LAN controls early to avoid a rare crash
-			// that may happen when using the buttons at the very last moment (after they're deinitialized).
+			// TheSuperHackers @bugfix Disable LAN menu buttons early to avoid a rare crash
+			// that may happen when using the buttons at the last moment (after they're deinitialized).
 			LANDisableButtons();
 		}
 
