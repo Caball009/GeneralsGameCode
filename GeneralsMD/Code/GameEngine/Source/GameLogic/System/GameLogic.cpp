@@ -256,7 +256,7 @@ GameLogic::GameLogic()
 		m_progressCompleteTimeout[i] = 0;
 	}
 
-	m_shouldValidateCRCs = FALSE;
+	m_validationModeCRC = CRCMODE_NONE;
 
 	m_startNewGame = FALSE;
 
@@ -2626,17 +2626,65 @@ void GameLogic::processDestroyList()
 	//in the request for a new deletion (sub-object), the new object was added to the end of this list.
 }
 
+static void checkForMismatch(const std::map<Int, UnsignedInt>& cachedCRCs)
+{
+	Bool sawCRCMismatch = FALSE;
+	Int numPlayers = 0;
+
+	for (Int i=0; i<MAX_SLOTS; ++i)
+	{
+		if (TheNetwork->isPlayerConnected(i))
+			++numPlayers;
+	}
+
+	if (cachedCRCs.size() < numPlayers)
+	{
+		DEBUG_CRASH(("Not enough CRCs!"));
+		sawCRCMismatch = TRUE;
+	}
+	else
+	{
+		//DEBUG_LOG(("Comparing %d CRCs on frame %d", cachedCRCs.size(), m_frame));
+		std::map<Int, UnsignedInt>::const_iterator crcIt = cachedCRCs.begin();
+		Int validatorCRC = crcIt->second;
+		//DEBUG_LOG(("Validator CRC from player %d is %8.8X", crcIt->first, validatorCRC));
+		while (++crcIt != cachedCRCs.end())
+		{
+			Int validatedCRC = crcIt->second;
+			//DEBUG_LOG(("CRC to validate is from player %d: %8.8X", crcIt->first, validatedCRC));
+			if (validatorCRC != validatedCRC)
+			{
+				DEBUG_CRASH(("CRC mismatch!"));
+				sawCRCMismatch = TRUE;
+			}
+		}
+	}
+
+	if (sawCRCMismatch)
+	{
+#ifdef DEBUG_LOGGING
+		DEBUG_LOG(("CRC Mismatch - saw %d CRCs from %d players", cachedCRCs.size(), numPlayers));
+		for (std::map<Int, UnsignedInt>::const_iterator crcIt = cachedCRCs.begin(); crcIt != cachedCRCs.end(); ++crcIt)
+		{
+			Player* player = ThePlayerList->getNthPlayer(crcIt->first);
+			DEBUG_LOG(("CRC from player %d (%ls) = %X", crcIt->first,
+				player ? player->getPlayerDisplayName().str() : L"<NONE>", crcIt->second));
+		}
+#endif // DEBUG_LOGGING
+
+		TheNetwork->setSawCRCMismatch();
+	}
+}
+
 //-------------------------------------------------------------------------------------------------
 /** Process the command list passed to the logic from the network */
 //-------------------------------------------------------------------------------------------------
 void GameLogic::processCommandList( CommandList *list )
 {
 	m_cachedCRCs.clear();
-	m_shouldValidateCRCs = FALSE;
+	m_validationModeCRC = CRCMODE_NONE;
 
-	GameMessage* msg;
-
-	for( msg = list->getFirstMessage(); msg; msg = msg->next() )
+	for( GameMessage* msg = list->getFirstMessage(); msg; msg = msg->next() )
 	{
 #ifdef RTS_DEBUG
 		DEBUG_ASSERTCRASH(msg != nullptr && msg != (GameMessage*)0xdeadbeef, ("bad msg"));
@@ -2644,58 +2692,14 @@ void GameLogic::processCommandList( CommandList *list )
 		logicMessageDispatcher( msg, nullptr );
 	}
 
-	if (m_shouldValidateCRCs && !TheNetwork->sawCRCMismatch())
+	if (m_validationModeCRC == CRCMODE_NETWORK)
 	{
-		Bool sawCRCMismatch = FALSE;
-		Int numPlayers = 0;
-		DEBUG_ASSERTCRASH(TheNetwork, ("No Network!"));
-		if (TheNetwork)
-		{
-			for (Int i=0; i<MAX_SLOTS; ++i)
-			{
-				if (TheNetwork->isPlayerConnected(i))
-					++numPlayers;
-			}
-
-			if (m_cachedCRCs.size() < numPlayers)
-			{
-				DEBUG_CRASH(("Not enough CRCs!"));
-				sawCRCMismatch = TRUE;
-			}
-			else
-			{
-				//DEBUG_LOG(("Comparing %d CRCs on frame %d", m_cachedCRCs.size(), m_frame));
-				std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin();
-				Int validatorCRC = crcIt->second;
-				//DEBUG_LOG(("Validator CRC from player %d is %8.8X", crcIt->first, validatorCRC));
-				while (++crcIt != m_cachedCRCs.end())
-				{
-					Int validatedCRC = crcIt->second;
-					//DEBUG_LOG(("CRC to validate is from player %d: %8.8X", crcIt->first, validatedCRC));
-					if (validatorCRC != validatedCRC)
-					{
-						DEBUG_CRASH(("CRC mismatch!"));
-						sawCRCMismatch = TRUE;
-					}
-				}
-			}
-		}
-
-		if (sawCRCMismatch)
-		{
-#ifdef DEBUG_LOGGING
-			DEBUG_LOG(("CRC Mismatch - saw %d CRCs from %d players", m_cachedCRCs.size(), numPlayers));
-			for (std::map<Int, UnsignedInt>::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
-			{
-				Player *player = ThePlayerList->getNthPlayer(crcIt->first);
-				DEBUG_LOG(("CRC from player %d (%ls) = %X", crcIt->first,
-					player?player->getPlayerDisplayName().str():L"<NONE>", crcIt->second));
-			}
-#endif // DEBUG_LOGGING
-			TheNetwork->setSawCRCMismatch();
-		}
+		checkForMismatch(m_cachedCRCs);
 	}
-
+	else if (m_validationModeCRC == CRCMODE_REPLAY)
+	{
+		TheRecorder->checkForMismatch();
+	}
 }
 
 // ------------------------------------------------------------------------------------------------
