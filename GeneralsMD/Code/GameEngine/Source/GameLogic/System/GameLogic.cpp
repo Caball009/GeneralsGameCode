@@ -3738,18 +3738,6 @@ void GameLogic::update()
 		TheTerrainLogic->UPDATE();
 	}
 
-	if (m_frame >= 100 && getGameMode() != GAME_SHELL && getGameMode() != GAME_NONE) {
-		static int interval = 1;
-		static int count = 10;
-		if (interval > 0 && m_frame % interval == 0) {
-			for (int i = 1; i <= count; ++i) {
-				GameMessage* msg = TheMessageStream->appendMessage(GameMessage::MSG_TEST_SEQUENTIAL_ORDER);
-				msg->appendIntegerArgument(i + ((m_frame - 100) % 10'000) * count);
-				//msg->appendIntegerArgument(m_frame);
-			}
-		}
-	}
-
 	// force CRC calculation, so we can keep a cache of the last N CRCs.  We do this right where the recorder
 	// would be getting the CRC anyway, so replays can get the CRCs from the exact instant in time as the original.
 	Bool isMPGameOrReplay = (TheRecorder && TheRecorder->isMultiplayer() && getGameMode() != GAME_SHELL && getGameMode() != GAME_NONE);
