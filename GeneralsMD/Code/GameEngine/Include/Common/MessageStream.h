@@ -614,6 +614,8 @@ public:
 		MSG_DEBUG_KILL_OBJECT,
 #endif
 
+		MSG_TEST_SEQUENTIAL_ORDER,
+
 //*********************************************************************************************************
 		MSG_END_NETWORK_MESSAGES = 1999,						///< MARKER TO DELINEATE MESSAGES THAT GO OVER THE NETWORK
 //*********************************************************************************************************

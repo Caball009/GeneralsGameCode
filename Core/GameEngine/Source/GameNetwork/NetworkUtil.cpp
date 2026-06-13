@@ -25,6 +25,8 @@
 
 #include "PreRTS.h"	// This must go first in EVERY cpp file in the GameEngine
 
+#include "GameClient/GameText.h"
+#include "GameClient/InGameUI.h"
 #include "GameNetwork/networkutil.h"
 
 #ifdef DEBUG_LOGGING
@@ -102,10 +104,17 @@ UnsignedInt ResolveIP(AsciiString host)
 /**
  * Returns the next network command ID.
  */
-UnsignedShort GenerateNextCommandID() {
-	static UnsignedShort commandID = 64000;
-	++commandID;
-	return commandID;
+static UnsignedShort s_commandID = 0;
+UnsignedShort GenerateNextCommandID()
+{
+	if (s_commandID == MAXUINT16)
+	{
+		const UnicodeString mismatchDetailsStr = TheGameText->FETCH_OR_SUBSTITUTE(
+			"NETWORK:COMMANDIDOVERFLOW", L"The command ID is about to overflow");
+		TheInGameUI->message(mismatchDetailsStr);
+	}
+
+	return s_commandID++;
 }
 
 /**
