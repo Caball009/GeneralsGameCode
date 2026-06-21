@@ -370,6 +370,8 @@ private:
 
 	static void createOptimizedTree(const ThingTemplate *thingTemplate, Coord3D *pos, Real angle);
 
+	void checkForMismatch();
+
 private:
 
 	/**
