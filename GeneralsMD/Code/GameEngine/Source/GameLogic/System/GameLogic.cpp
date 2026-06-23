@@ -256,7 +256,7 @@ GameLogic::GameLogic()
 		m_progressCompleteTimeout[i] = 0;
 	}
 
-	m_shouldValidateCRCs = FALSE;
+	m_validationModeCRC = CRCMODE_NONE;
 
 	m_startNewGame = FALSE;
 
@@ -2632,7 +2632,7 @@ void GameLogic::processDestroyList()
 void GameLogic::processCommandList( CommandList *list )
 {
 	m_cachedCRCs.clear();
-	m_shouldValidateCRCs = FALSE;
+	m_validationModeCRC = CRCMODE_NONE;
 
 	for( GameMessage* msg = list->getFirstMessage(); msg; msg = msg->next() )
 	{
@@ -2642,9 +2642,13 @@ void GameLogic::processCommandList( CommandList *list )
 		logicMessageDispatcher( msg, nullptr );
 	}
 
-	if (m_shouldValidateCRCs && !TheNetwork->sawCRCMismatch())
+	if (m_validationModeCRC == CRCMODE_NETWORK)
 	{
 		checkForMismatch();
+	}
+	else if (m_validationModeCRC == CRCMODE_REPLAY)
+	{
+		TheRecorder->checkForMismatch();
 	}
 }
 
@@ -2655,7 +2659,7 @@ void GameLogic::checkForMismatch()
 	DEBUG_ASSERTCRASH(TheNetwork, ("No Network!"));
 
 	Bool sawCRCMismatch = FALSE;
-	Int numPlayers = 0;
+	UnsignedInt numPlayers = 0;
 
 	for (Int i=0; i<MAX_SLOTS; ++i)
 	{
@@ -2703,7 +2707,7 @@ void GameLogic::checkForMismatch()
 		DEBUG_LOG(("CRC Mismatch - saw %d CRCs from %d players", m_cachedCRCs.size(), numPlayers));
 		for (CachedCRCMap::const_iterator crcIt = m_cachedCRCs.begin(); crcIt != m_cachedCRCs.end(); ++crcIt)
 		{
-			Player* player = ThePlayerList->getNthPlayer(crcIt->first);
+			const Player* player = ThePlayerList->getNthPlayer(crcIt->first);
 			DEBUG_LOG(("CRC from player %d (%ls) = %X", crcIt->first,
 				player ? player->getPlayerDisplayName().str() : L"<NONE>", crcIt->second));
 		}
