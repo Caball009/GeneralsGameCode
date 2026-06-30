@@ -221,7 +221,7 @@ static Bool selectSingleDrawableWithoutSound( Drawable *draw )
 	Object *obj = draw->getObject();
 	if (obj != nullptr) {
 		// since we are single selecting a drawable, unselect everything else
-		TheInGameUI->deselectAllDrawables();
+		TheInGameUI->deselectAllDrawables(FALSE);
 
 		// do the drawable selection
 		TheInGameUI->selectDrawable(draw);
@@ -883,7 +883,7 @@ GameMessageDisposition SelectionTranslator::onMouseLeftClick(MAYBE_UNUSED const 
 	{
 		if (!addToGroup)
 		{
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 		}
 
 		GameMessage *newMsg = TheMessageStream->appendMessage(GameMessage::MSG_CREATE_SELECTED_GROUP);

@@ -1255,7 +1255,7 @@ GameMessage::Type CommandTranslator::issueSpecialPowerCommand( const CommandButt
 		if( spUpdate )
 		{
 			//Deselect the drawables before posting the selection message.
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 
 			//Because we just launched a special power via shortcut, and the special power accepts input
 			//from the player (particle uplink cannon, spectre gunship), simply select the object now.
@@ -2585,7 +2585,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// create a new group.
 						GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
@@ -2701,8 +2701,8 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
 						// select the unit
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// create a new group.
 						GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
@@ -2814,7 +2814,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// select the unit
 						// create a new group.
@@ -2929,8 +2929,8 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 					if(newDrawable != nullptr )
 					{
 						//deselect other units
-						TheInGameUI->deselectAllDrawables();
 						// select the unit
+						TheInGameUI->deselectAllDrawables(FALSE);
 
 						// create a new group.
 						GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
@@ -2982,7 +2982,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 			if ( heroDraw == nullptr )
 				break;
 
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 
 			// create a new group.
 			GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
@@ -3067,7 +3067,7 @@ GameMessageDisposition CommandTranslator::translateGameMessage(const GameMessage
 
 
 /*
-			TheInGameUI->deselectAllDrawables();
+			TheInGameUI->deselectAllDrawables(FALSE);
 
 			GameMessage *teamMsg = TheMessageStream->appendMessage( GameMessage::MSG_CREATE_SELECTED_GROUP );
 			// creating a new team so pass in true

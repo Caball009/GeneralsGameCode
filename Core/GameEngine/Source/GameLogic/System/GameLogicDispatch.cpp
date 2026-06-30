@@ -828,7 +828,7 @@ void GameLogic::logicMessageDispatcher( GameMessage *msg, void *userData )
 	if (currentlySelectedGroup && TheRecorder->isPlaybackMode() && TheGlobalData->m_useCameraInReplay && TheControlBar->getObserverLookAtPlayer() == msgPlayer /*&& !TheRecorder->isMultiplayer()*/)
 	{
 		const VecObjectID& selectedObjects = currentlySelectedGroup->getAllIDs();
-		TheInGameUI->deselectAllDrawables();
+		TheInGameUI->deselectAllDrawables(FALSE);
 		for (VecObjectID::const_iterator it = selectedObjects.begin(); it != selectedObjects.end(); ++it)
 		{
 			const Object *obj = findObjectByID(*it);
