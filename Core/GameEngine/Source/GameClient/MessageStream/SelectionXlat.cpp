@@ -243,6 +243,7 @@ SelectionTranslator *TheSelectionTranslator = nullptr;
 //-----------------------------------------------------------------------------
 SelectionTranslator::SelectionTranslator()
 {
+	m_pendingDeselection = FALSE;
 	m_leftMouseButtonIsDown = FALSE;
 	m_dragSelecting = FALSE;
 	m_lastGroupSelTime = 0;
@@ -397,6 +398,15 @@ GameMessageDisposition SelectionTranslator::translateGameMessage(const GameMessa
 		case GameMessage::MSG_MOUSE_LEFT_CLICK:
 		{
 			disp = onMouseLeftClick(msg);
+
+			// TheSuperHackers @tweak Avoid double deselection when selecting a new object with another object selected,
+			// originally triggered by RAW_MOUSE_LEFT_BUTTON_UP and MOUSE_LEFT_CLICK, respectively.
+			if (m_pendingDeselection)
+			{
+				m_pendingDeselection = FALSE;
+				TheInGameUI->deselectAllDrawables();
+			}
+
 			break;
 		}
 		// Note that the raw left messages are only used to draw feedback now when
@@ -883,6 +893,7 @@ GameMessageDisposition SelectionTranslator::onMouseLeftClick(MAYBE_UNUSED const 
 	{
 		if (!addToGroup)
 		{
+			m_pendingDeselection = FALSE;
 			TheInGameUI->deselectAllDrawables(FALSE);
 		}
 
@@ -1053,7 +1064,7 @@ GameMessageDisposition SelectionTranslator::onRawMouseLeftButtonUp(MAYBE_UNUSED 
 			{
 				if( !TheInGameUI->getPreventLeftClickDeselectionInAlternateMouseModeForOneClick() )
 				{
-					TheInGameUI->deselectAllDrawables();
+					m_pendingDeselection = TRUE;
 					m_lastGroupSelGroup = -1;
 				}
 				else

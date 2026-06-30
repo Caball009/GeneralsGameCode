@@ -42,6 +42,7 @@ class SelectionTranslator : public GameMessageTranslator
 	friend Bool killThemKillThemAllWrapper( Drawable *draw, void *userData );
 private:
 
+	Bool m_pendingDeselection;
 	Bool m_leftMouseButtonIsDown;
 	Bool m_dragSelecting;
 	UnsignedInt m_lastGroupSelTime;
