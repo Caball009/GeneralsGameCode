@@ -1258,6 +1258,7 @@ GameMessageDisposition SelectionTranslator::onMetaAddTeam(MAYBE_UNUSED const Gam
 		}
 		else
 		{
+			Bool deselectedAllDrawables = FALSE;
 
 			Drawable *draw = TheInGameUI->getFirstSelectedDrawable();
 			if( draw && draw->isKindOf( KINDOF_STRUCTURE ) )
@@ -1266,6 +1267,7 @@ GameMessageDisposition SelectionTranslator::onMetaAddTeam(MAYBE_UNUSED const Gam
 				//Can't select other units if you have a structure selected. So deselect the structure to prevent
 				//group force attack exploit.
 				TheInGameUI->deselectAllDrawables();
+				deselectedAllDrawables = TRUE;
 			}
 
 			// no need to send two messages for selecting the same group.
@@ -1280,7 +1282,7 @@ GameMessageDisposition SelectionTranslator::onMetaAddTeam(MAYBE_UNUSED const Gam
 					Int numObjs = objlist.size();
 
 					// TheSuperHackers @bugfix skyaero 22/07/2025 Can't select other units if you have a structure selected. So deselect the structure to prevent group force attack exploit.
-					if (numObjs > 0 && objlist[0]->getDrawable()->isKindOf(KINDOF_STRUCTURE))
+					if (!deselectedAllDrawables && numObjs > 0 && objlist[0]->getDrawable()->isKindOf(KINDOF_STRUCTURE))
 					{
 						TheInGameUI->deselectAllDrawables();
 					}
