@@ -254,6 +254,24 @@ void HelixContain::addToContainList( Object *obj )
 
     m_portableStructureID = portable->getID();
     portable->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
+
+#if RETAIL_COMPATIBLE_CRC
+    Object* containedBy = getObject();
+
+    // TheSuperHackers @info Set INVALID_ID if the container object was destroyed
+    // to indicate that the pointer will become a dangling pointer in the next frame.
+    if (containedBy && !containedBy->isDestroyed())
+    {
+      portable->friend_setContainedByID(containedBy->getID());
+    }
+    else
+    {
+      portable->friend_setContainedByID(INVALID_ID);
+    }
+#else
+    DEBUG_ASSERTCRASH(getObject() == nullptr || !getObject()->isDestroyed(),
+      ("HelixContain::addToContainList - Adding to a destroyed container"));
+#endif
   }
   else
 		TransportContain::addToContainList( obj );
@@ -272,6 +290,24 @@ void HelixContain::addToContain( Object *obj )
 
     m_portableStructureID = portable->getID();
     portable->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
+
+#if RETAIL_COMPATIBLE_CRC
+    Object* containedBy = getObject();
+
+    // TheSuperHackers @info Set INVALID_ID if the container object was destroyed
+    // to indicate that the pointer will become a dangling pointer in the next frame.
+    if (containedBy && !containedBy->isDestroyed())
+    {
+      portable->friend_setContainedByID(containedBy->getID());
+    }
+    else
+    {
+      portable->friend_setContainedByID(INVALID_ID);
+    }
+#else
+    DEBUG_ASSERTCRASH(getObject() == nullptr || !getObject()->isDestroyed(),
+      ("HelixContain::addToContain - Adding to a destroyed container"));
+#endif
   }
   else
 		TransportContain::addToContain( obj );
