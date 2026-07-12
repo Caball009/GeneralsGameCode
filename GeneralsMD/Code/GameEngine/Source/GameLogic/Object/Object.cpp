@@ -749,6 +749,15 @@ Int Object::getTransportSlotCount() const
 	return count;
 }
 
+void Object::friend_setContainedBy(Object* containedBy)
+{
+	m_containedBy = containedBy;
+
+#if !RETAIL_COMPATIBLE_CRC
+	m_containedByFrame = containedBy ? TheGameLogic->getFrame() : 0;
+#endif
+}
+
 const Object* Object::getEnclosingContainedBy() const
 {
 	for (const Object* child = this, *container = getContainedBy(); container; child = container, container = container->getContainedBy())

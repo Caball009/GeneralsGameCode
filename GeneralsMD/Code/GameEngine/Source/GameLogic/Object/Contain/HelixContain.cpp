@@ -320,10 +320,16 @@ void HelixContain::removeFromContain( Object *obj, Bool exposeStealthUnits )
 	{
     Object *portable = getPortableStructure();
     if ( portable )
+    {
+#if RETAIL_COMPATIBLE_CRC
+      portable->friend_setContainedByID(INVALID_ID);
+#else
+      portable->friend_setContainedBy(nullptr);
+#endif
 
       m_portableStructureID = INVALID_ID;
       //portable->kill();
-
+    }
   }
   else
   {
