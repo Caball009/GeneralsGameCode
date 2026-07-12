@@ -250,10 +250,10 @@ void HelixContain::addToContainList( Object *obj )
     if ( portable )
       TheGameLogic->destroyObject( portable );
 
-    m_portableStructureID = obj->getID();
-    obj->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
+    portable = obj;
 
-
+    m_portableStructureID = portable->getID();
+    portable->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
   }
   else
 		TransportContain::addToContainList( obj );
@@ -268,10 +268,10 @@ void HelixContain::addToContain( Object *obj )
     if ( portable )
       TheGameLogic->destroyObject( portable );
 
-    m_portableStructureID = obj->getID();
-    obj->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
+    portable = obj;
 
-
+    m_portableStructureID = portable->getID();
+    portable->friend_setContainedBy( getObject() );//fool portable into thinking my object is his container
   }
   else
 		TransportContain::addToContain( obj );
