@@ -213,7 +213,7 @@ Bool Transport::doSend() {
 	// Send all messages
 	for (size_t i = 0; i < ARRAY_SIZE(m_outBuffer); ++i)
 	{
-		if (m_outBuffer[i].length != 0)
+		if (m_outBuffer[i].length > 0)
 		{
 			int bytesSent = 0;
 			// TheSuperHackers @info The handling of data sizing of the payload within a UDP packet is confusing due to the current networking implementation
@@ -252,11 +252,11 @@ Bool Transport::doSend() {
 
 		for (size_t i = 0; i < ARRAY_SIZE(m_delayedInBuffer); ++i)
 		{
-			if (m_delayedInBuffer[i].message.length != 0 && m_delayedInBuffer[i].deliveryTime <= now)
+			if (m_delayedInBuffer[i].message.length > 0 && m_delayedInBuffer[i].deliveryTime <= now)
 			{
 				for (; bufferIndex < ARRAY_SIZE(m_inBuffer); ++bufferIndex)
 				{
-					if (m_inBuffer[bufferIndex].length == 0)
+					if (m_inBuffer[bufferIndex].length <= 0)
 					{
 						// Empty slot; use it
 						memcpy(&m_inBuffer[bufferIndex], &m_delayedInBuffer[i].message, sizeof(TransportMessage));
@@ -341,7 +341,7 @@ Bool Transport::doRecv()
 		{
 			for (; bufferIndex < ARRAY_SIZE(m_delayedInBuffer); ++bufferIndex)
 			{
-				if (m_delayedInBuffer[bufferIndex].message.length == 0)
+				if (m_delayedInBuffer[bufferIndex].message.length <= 0)
 				{
 					// Empty slot; use it
 					m_delayedInBuffer[bufferIndex].deliveryTime =
@@ -363,7 +363,7 @@ Bool Transport::doRecv()
 
 		for (; bufferIndex < ARRAY_SIZE(m_inBuffer); ++bufferIndex)
 		{
-			if (m_inBuffer[bufferIndex].length == 0)
+			if (m_inBuffer[bufferIndex].length <= 0)
 			{
 				// Empty slot; use it
 				m_inBuffer[bufferIndex].length = incomingMessage.length;
@@ -396,7 +396,7 @@ Bool Transport::queueSend(UnsignedInt addr, UnsignedShort port, const UnsignedBy
 
 	for (size_t i = 0; i < ARRAY_SIZE(m_outBuffer); ++i)
 	{
-		if (m_outBuffer[i].length == 0)
+		if (m_outBuffer[i].length <= 0)
 		{
 			// Insert data here
 			m_outBuffer[i].length = len;

@@ -462,7 +462,7 @@ void ConnectionManager::doRelay() {
 	NetPacket *packet = nullptr;
 
 	for (size_t i = 0; i < ARRAY_SIZE(m_transport->m_inBuffer); ++i) {
-		if (m_transport->m_inBuffer[i].length != 0) {
+		if (m_transport->m_inBuffer[i].length > 0) {
 			// This transport buffer has yet to be processed.
 
 			// make a NetPacket out of this data so it can be broken up into individual commands.
