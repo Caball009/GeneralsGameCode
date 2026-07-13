@@ -4299,8 +4299,9 @@ void Object::xfer( Xfer *xfer )
 		// No, the contain module is just going to friend_ reach in and set this for us.
 		// Containers more complicated than Open (like Tunnel) can't do that.  Our variable,
 		// our responsibility.
-#if !RETAIL_COMPATIBLE_CRC
+#if RETAIL_COMPATIBLE_CRC
 		// TheSuperHackers @tweak Contained by ID is already set with retail compatibility; don't overwrite it.
+#else
 		if( xfer->getXferMode() == XFER_SAVE )
 		{
 			if( m_containedBy != nullptr )
