@@ -462,20 +462,18 @@ void ConnectionManager::doRelay() {
 	static Int numPackets = 0;
 	static Int numCommands = 0;
 
-	NetPacket *packet = nullptr;
-
 	for (Int i = 0; i < MAX_MESSAGES; ++i) {
 		if (m_transport->m_inBuffer[i].length != 0) {
 			// This transport buffer has yet to be processed.
 
 			// make a NetPacket out of this data so it can be broken up into individual commands.
-			packet = newInstance(NetPacket)(&(m_transport->m_inBuffer[i]));
+			NetPacket packet(m_transport->m_inBuffer[i]);
 
-			//DEBUG_LOG(("ConnectionManager::doRelay() - got a packet with %d commands", packet->getNumCommands()));
-			//LOGBUFFER( packet->getData(), packet->getLength() );
+			//DEBUG_LOG(("ConnectionManager::doRelay() - got a packet with %d commands", packet.getNumCommands()));
+			//LOGBUFFER( packet.getData(), packet.getLength() );
 
 			// Get the command list from the packet.
-			NetCommandList *cmdList = packet->getCommandList();
+			NetCommandList *cmdList = packet.getCommandList();
 			NetCommandRef *cmd = cmdList->getFirstMessage();
 
 			// Iterate through the commands in this packet and send them to the proper connections.
@@ -493,10 +491,6 @@ void ConnectionManager::doRelay() {
 				++numCommands;
 			}
 			++numPackets;
-
-			// Delete this packet since we won't be needing it anymore.
-			deleteInstance(packet);
-			packet = nullptr;
 
 			deleteInstance(cmdList);
 			cmdList = nullptr;
@@ -520,10 +514,6 @@ void ConnectionManager::doRelay() {
 		++numCommands;
 	}
 	++numPackets;
-
-	// Delete this packet since we won't be needing it anymore.
-	deleteInstance(packet);
-	packet = nullptr;
 
 	deleteInstance(cmdList);
 	cmdList = nullptr;
