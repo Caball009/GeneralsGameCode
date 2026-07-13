@@ -461,7 +461,7 @@ void ConnectionManager::destroyGameMessages() {
 void ConnectionManager::doRelay() {
 	NetPacket *packet = nullptr;
 
-	for (Int i = 0; i < MAX_MESSAGES; ++i) {
+	for (size_t i = 0; i < ARRAY_SIZE(m_transport->m_inBuffer); ++i) {
 		if (m_transport->m_inBuffer[i].length != 0) {
 			// This transport buffer has yet to be processed.
 
@@ -496,6 +496,8 @@ void ConnectionManager::doRelay() {
 
 			// signal that this has been processed.
 			m_transport->m_inBuffer[i].length = 0;
+		} else {
+			break;
 		}
 	}
 
