@@ -459,9 +459,6 @@ void ConnectionManager::destroyGameMessages() {
  * assumption that a command will only be relayed once.
  */
 void ConnectionManager::doRelay() {
-	static Int numPackets = 0;
-	static Int numCommands = 0;
-
 	NetPacket *packet = nullptr;
 
 	for (Int i = 0; i < MAX_MESSAGES; ++i) {
@@ -489,10 +486,7 @@ void ConnectionManager::doRelay() {
 					sendRemoteCommand(cmd);
 				}
 				cmd = cmd->getNext();
-
-				++numCommands;
 			}
-			++numPackets;
 
 			// Delete this packet since we won't be needing it anymore.
 			deleteInstance(packet);
@@ -516,10 +510,7 @@ void ConnectionManager::doRelay() {
 			sendRemoteCommand(cmd);
 		}
 		cmd = cmd->getNext();
-
-		++numCommands;
 	}
-	++numPackets;
 
 	// Delete this packet since we won't be needing it anymore.
 	deleteInstance(packet);
