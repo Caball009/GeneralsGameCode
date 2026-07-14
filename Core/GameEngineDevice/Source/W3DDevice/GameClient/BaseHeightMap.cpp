@@ -680,125 +680,122 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 	if (!m_map)
 		return false;	//need valid pointer to heightmap samples
 
-	TriClass tri;
-	Bool hit = false;
-	Int X,Y;
-	Vector3 normal,P0,P1,P2,P3;
-	P0.Set(FLT_MAX, FLT_MAX, FLT_MAX); // Set initial bogus value
-	P1.Set(FLT_MAX, FLT_MAX, FLT_MAX); // Set initial bogus value
-	Int P0HitCount = 0;
-	Int P1HitCount = 0;
+	const LineSegClass& lineseg = raytest.Ray;
+	const LineSegClass linesegReversed(lineseg.Get_P1(), lineseg.Get_P0()); //reverse line segment
+	const Int borderSize = m_map->getBorderSizeInline();
 
 	//Clip ray to extents of height map
 	AABoxClass hbox;
-	LineSegClass lineseg,lineseg2;
-	CastResultStruct	result;
+	{
+		const Int overhang = 2 * VERTEX_BUFFER_TILE_LENGTH + borderSize; // Allow picking past the edge for scrolling & objects.
+
+		const Real rayMinHeight = std::min(raytest.Ray.Get_P0().Z, raytest.Ray.Get_P1().Z);
+		const Real rayMaxHeight = std::max(raytest.Ray.Get_P0().Z, raytest.Ray.Get_P1().Z);
+		const Real rayHeightDelta = rayMaxHeight - rayMinHeight;
+		const Real rayHeightMargin = std::min(1.0f, rayHeightDelta * 0.49f);
+		Real mapMinHeight = MAP_HEIGHT_SCALE * m_map->getMinHeightValue(); // Begin with min map height.
+		Real mapMaxHeight = MAP_HEIGHT_SCALE * m_map->getMaxHeightValue(); // Begin with max map height.
+		mapMinHeight = std::max(mapMinHeight, rayMinHeight + rayHeightMargin); // But not lower than the ray end plus a margin.
+		mapMaxHeight = std::min(mapMaxHeight, rayMaxHeight - rayHeightMargin); // But not higher than the ray start minus a margin.
+
+		// The first hit box is very rough and is only meant to narrow the search.
+		const Vector3 minPt(MAP_XY_FACTOR * (-overhang), MAP_XY_FACTOR * (-overhang), mapMinHeight);
+		const Vector3 maxPt(MAP_XY_FACTOR * (m_map->getXExtent() + overhang), MAP_XY_FACTOR * (m_map->getYExtent() + overhang), mapMaxHeight);
+		const MinMaxAABoxClass mmbox(minPt, maxPt);
+
+		hbox.Init(mmbox);
+	}
+
+	Vector3 contactPoint0(FLT_MAX, FLT_MAX, FLT_MAX); // Set initial bogus value
+	Vector3 contactPoint1(FLT_MAX, FLT_MAX, FLT_MAX); // Set initial bogus value
+	Int cp0HitCount = 0;
+	Int cp1HitCount = 0;
 	Int startCellX = 0;
 	Int startCellY = 0;
 	Int endCellX = 0;
 	Int endCellY = 0;
-	const Int borderSize = m_map->getBorderSizeInline();
-	const Int overhang = 2*VERTEX_BUFFER_TILE_LENGTH + borderSize; // Allow picking past the edge for scrolling & objects.
 
-	const Real rayMinHeight = std::min(raytest.Ray.Get_P0().Z, raytest.Ray.Get_P1().Z);
-	const Real rayMaxHeight = std::max(raytest.Ray.Get_P0().Z, raytest.Ray.Get_P1().Z);
-	const Real rayHeightDelta = rayMaxHeight - rayMinHeight;
-	const Real rayHeightMargin = std::min(1.0f, rayHeightDelta * 0.49f);
-	Real mapMinHeight = MAP_HEIGHT_SCALE * m_map->getMinHeightValue(); // Begin with min map height.
-	Real mapMaxHeight = MAP_HEIGHT_SCALE * m_map->getMaxHeightValue(); // Begin with max map height.
-	mapMinHeight = std::max(mapMinHeight, rayMinHeight + rayHeightMargin); // But not lower than the ray end plus a margin.
-	mapMaxHeight = std::min(mapMaxHeight, rayMaxHeight - rayHeightMargin); // But not higher than the ray start minus a margin.
-
-	// The first hit box is very rough and is only meant to narrow the search.
-	Vector3 minPt(MAP_XY_FACTOR*(-overhang), MAP_XY_FACTOR*(-overhang), mapMinHeight);
-	Vector3 maxPt(MAP_XY_FACTOR*(m_map->getXExtent()+overhang), MAP_XY_FACTOR*(m_map->getYExtent()+overhang), mapMaxHeight);
-	MinMaxAABoxClass mmbox(minPt, maxPt);
-	hbox.Init(mmbox);
-
-	lineseg=raytest.Ray;
-
-	Int terrainIntersectionIteration = 0;
-	for (; ; ++terrainIntersectionIteration) {
+	for (Int terrainIntersectionIteration = 0; ; ++terrainIntersectionIteration) {
 		//find intersection point of ray and terrain bounding box
-		result.Reset();
+		CastResultStruct result;
 		result.ComputeContactPoint=true;
-		Bool newP0 = false;
-		Bool newP1 = false;
+		Bool newContactPoint0 = false;
+		Bool newContactPoint1 = false;
 
 		if (CollisionMath::Collide(lineseg,hbox,&result))
 		{
 			//ray intersects terrain or starts inside the terrain.
 			if (!result.StartBad)	//check if start point inside terrain
 			{
-				newP0 = P0 != result.ContactPoint;
-				P0 = result.ContactPoint;	//make intersection point the new start of the ray.
-				++P0HitCount;
+				newContactPoint0 = contactPoint0 != result.ContactPoint;
+				contactPoint0 = result.ContactPoint;	//make intersection point the new start of the ray.
+				++cp0HitCount;
 			}
 
 			//reverse direction of original ray and clip again to extent of heightmap
 			result.Fraction=1.0f;	//reset the result
 			result.StartBad=false;
-			lineseg2.Set(lineseg.Get_P1(),lineseg.Get_P0());	//reverse line segment
-			if (CollisionMath::Collide(lineseg2,hbox,&result))
+
+			if (CollisionMath::Collide(linesegReversed,hbox,&result))
 			{
 				if (!result.StartBad)	//check if end point inside terrain
 				{
-					newP1 = P1 != result.ContactPoint;
-					P1 = result.ContactPoint;	//make intersection point the new end point of ray
-					++P1HitCount;
+					newContactPoint1 = contactPoint1 != result.ContactPoint;
+					contactPoint1 = result.ContactPoint;	//make intersection point the new end point of ray
+					++cp1HitCount;
 				}
 			}
 		}
 
 		// Has not even hit the first hit box?
-		if (P0HitCount == 0 || P1HitCount == 0)
+		if (cp0HitCount == 0 || cp1HitCount == 0)
 			return false;
 
 		// Has no new hit points?
-		if (!newP0 && !newP1)
+		if (!newContactPoint0 && !newContactPoint1)
 			break;
 
 		// Take the 2D bounding box of ray and check heights
 		// inside this box for intersection.
-		if (P0.X > P1.X) {	//flip start/end points
-			startCellX = REAL_TO_INT_FLOOR(P1.X/MAP_XY_FACTOR);
-			endCellX = REAL_TO_INT_CEIL(P0.X/MAP_XY_FACTOR);
+		if (contactPoint0.X > contactPoint1.X) {	//flip start/end points
+			startCellX = REAL_TO_INT_FLOOR(contactPoint1.X/MAP_XY_FACTOR);
+			endCellX = REAL_TO_INT_CEIL(contactPoint0.X/MAP_XY_FACTOR);
 		}	else {
-			startCellX = REAL_TO_INT_FLOOR(P0.X/MAP_XY_FACTOR);
-			endCellX = REAL_TO_INT_CEIL(P1.X/MAP_XY_FACTOR);
+			startCellX = REAL_TO_INT_FLOOR(contactPoint0.X/MAP_XY_FACTOR);
+			endCellX = REAL_TO_INT_CEIL(contactPoint1.X/MAP_XY_FACTOR);
 		}
-		if (P0.Y > P1.Y) {	//flip start/end points
-			startCellY = REAL_TO_INT_FLOOR(P1.Y/MAP_XY_FACTOR);
-			endCellY = REAL_TO_INT_CEIL(P0.Y/MAP_XY_FACTOR);
+		if (contactPoint0.Y > contactPoint1.Y) {	//flip start/end points
+			startCellY = REAL_TO_INT_FLOOR(contactPoint1.Y/MAP_XY_FACTOR);
+			endCellY = REAL_TO_INT_CEIL(contactPoint0.Y/MAP_XY_FACTOR);
 		}	else {
-			startCellY = REAL_TO_INT_FLOOR(P0.Y/MAP_XY_FACTOR);
-			endCellY = REAL_TO_INT_CEIL(P1.Y/MAP_XY_FACTOR);
+			startCellY = REAL_TO_INT_FLOOR(contactPoint0.Y/MAP_XY_FACTOR);
+			endCellY = REAL_TO_INT_CEIL(contactPoint1.Y/MAP_XY_FACTOR);
 		}
 
 		// Stop narrowing after the third iteration
 		if (terrainIntersectionIteration == 2)
 			break;
 
-		Int i, j, minHt, maxHt;
+		Int minHeight = m_map->getMaxHeightValue();
+		Int maxHeight = 0;
 
-		minHt = m_map->getMaxHeightValue();
-		maxHt = 0;
-
-		for (j=startCellY; j<=endCellY; j++) {
-			for (i=startCellX; i<=endCellX; i++) {
-				Short cur = getClipHeight(i+borderSize,j+borderSize);
-				if (cur<minHt) minHt = cur;
-				if (maxHt<cur) maxHt = cur;
+		for (Int j=startCellY; j<=endCellY; ++j) {
+			for (Int i=startCellX; i<=endCellX; ++i) {
+				const Short cur = getClipHeight(i+borderSize,j+borderSize);
+				if (cur<minHeight) minHeight = cur;
+				if (maxHeight<cur) maxHeight = cur;
 			}
 		}
-		Vector3 minPt(MAP_XY_FACTOR*(startCellX-1), MAP_XY_FACTOR*(startCellY-1), MAP_HEIGHT_SCALE*(minHt-1));
-		Vector3 maxPt(MAP_XY_FACTOR*(endCellX+1), MAP_XY_FACTOR*(endCellY+1), MAP_HEIGHT_SCALE*(maxHt+1));
-		MinMaxAABoxClass mmbox(minPt, maxPt);
+
+		const Vector3 minPt(MAP_XY_FACTOR*(startCellX-1), MAP_XY_FACTOR*(startCellY-1), MAP_HEIGHT_SCALE*(minHeight-1));
+		const Vector3 maxPt(MAP_XY_FACTOR*(endCellX+1), MAP_XY_FACTOR*(endCellY+1), MAP_HEIGHT_SCALE*(maxHeight+1));
+		const MinMaxAABoxClass mmbox(minPt, maxPt);
+
 		hbox.Init(mmbox);
 	}
 
 	// Needs at least 2 hit counts for a proper terrain collision.
-	if (P0HitCount < 2 || P1HitCount < 2)
+	if (cp0HitCount < 2 || cp1HitCount < 2)
 		return false;
 
 	raytest.Result->ComputeContactPoint=true;	//tell CollisionMath that we need point.
@@ -810,10 +807,11 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 	startCellY += borderSize;
 	endCellY += borderSize;
 
-	Int offset;
-	for (offset = 1; offset < 5; offset *= 3) {
-		for (Y=startCellY-offset; Y<=endCellY+offset; Y++) {
-			for (X=startCellX-offset; X<=endCellX+offset; X++) {
+	Bool hit = false;
+
+	for (Int offset = 1; offset <= 3; offset *= 3) {
+		for (Int Y=startCellY-offset; Y<=endCellY+offset; ++Y) {
+			for (Int X=startCellX-offset; X<=endCellX+offset; ++X) {
 				//test the 2 triangles in this cell
 				//	3-----2
 				//  |    /|
@@ -821,28 +819,33 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 				//	|/    |
 				//  0-----1
 
-				//bottom triangle first
+				Vector3 P0;
 				P0.X=ADJUST_FROM_INDEX_TO_REAL(X);
 				P0.Y=ADJUST_FROM_INDEX_TO_REAL(Y);
 				P0.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X, Y);
 
+				Vector3 P1;
 				P1.X=ADJUST_FROM_INDEX_TO_REAL(X+1);
 				P1.Y=ADJUST_FROM_INDEX_TO_REAL(Y);
 				P1.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X+1, Y);
 
+				Vector3 P2;
 				P2.X=ADJUST_FROM_INDEX_TO_REAL(X+1);
 				P2.Y=ADJUST_FROM_INDEX_TO_REAL(Y+1);
 				P2.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X+1, Y+1);
 
+				Vector3 P3;
 				P3.X=ADJUST_FROM_INDEX_TO_REAL(X);
 				P3.Y=ADJUST_FROM_INDEX_TO_REAL(Y+1);
 				P3.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X, Y+1);
 
+				Vector3 normal;
 
+				//bottom triangle first
+				TriClass tri;
 				tri.V[0] = &P0;
 				tri.V[1] = &P1;
 				tri.V[2] = &P2;
-
 				tri.N = &normal;
 
 				tri.Compute_Normal();
@@ -856,7 +859,6 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 				tri.V[0] = &P2;
 				tri.V[1] = &P3;
 				tri.V[2] = &P0;
-
 				tri.N = &normal;
 
 				tri.Compute_Normal();
