@@ -811,6 +811,10 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 
 	for (Int offset = 1; offset <= 3; offset *= 3) {
 		for (Int Y=startCellY-offset; Y<=endCellY+offset; ++Y) {
+			Vector3 P0, P1, P2, P3;
+			P0.Y = P1.Y = ADJUST_FROM_INDEX_TO_REAL(Y);
+			P2.Y = P3.Y = ADJUST_FROM_INDEX_TO_REAL(Y + 1);
+
 			for (Int X=startCellX-offset; X<=endCellX+offset; ++X) {
 				//test the 2 triangles in this cell
 				//	3-----2
@@ -819,24 +823,16 @@ bool BaseHeightMapRenderObjClass::Cast_Ray(RayCollisionTestClass & raytest)
 				//	|/    |
 				//  0-----1
 
-				Vector3 P0;
 				P0.X=ADJUST_FROM_INDEX_TO_REAL(X);
-				P0.Y=ADJUST_FROM_INDEX_TO_REAL(Y);
 				P0.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X, Y);
 
-				Vector3 P1;
 				P1.X=ADJUST_FROM_INDEX_TO_REAL(X+1);
-				P1.Y=ADJUST_FROM_INDEX_TO_REAL(Y);
 				P1.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X+1, Y);
 
-				Vector3 P2;
-				P2.X=ADJUST_FROM_INDEX_TO_REAL(X+1);
-				P2.Y=ADJUST_FROM_INDEX_TO_REAL(Y+1);
+				P2.X=P1.X;
 				P2.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X+1, Y+1);
 
-				Vector3 P3;
-				P3.X=ADJUST_FROM_INDEX_TO_REAL(X);
-				P3.Y=ADJUST_FROM_INDEX_TO_REAL(Y+1);
+				P3.X=P0.X;
 				P3.Z=MAP_HEIGHT_SCALE*(float)getClipHeight(X, Y+1);
 
 				Vector3 normal;
