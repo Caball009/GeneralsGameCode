@@ -1015,7 +1015,7 @@ void Player::initFromDict(const Dict* d)
 }
 
 //=============================================================================
-void Player::becomingTeamMember(Object *obj, Bool yes)
+void Player::becomingTeamMember(Object *obj, Bool yes, Bool objectXferLoad)
 {
 	if (!obj)
 		return;
@@ -1036,6 +1036,11 @@ void Player::becomingTeamMember(Object *obj, Bool yes)
 		else
 			TheInGameUI->removeIdleWorker(obj, getPlayerIndex());
 	}
+
+	// TheSuperHackers @bugfix Caball009 19/07/2026 Return early to avoid overwriting
+	// object data, e.g. the vision range, that may have been loaded during the xfer process.
+	if (objectXferLoad)
+		return;
 
 	// when we capture a building, we need to see if there's an AutoDepositUpdate hooked to it,
 	// if so, award the cash bonus

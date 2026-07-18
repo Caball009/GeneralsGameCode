@@ -901,7 +901,7 @@ void Object::setTemporaryTeam( Team *team )
 
 //=============================================================================
 //=============================================================================
-void Object::setOrRestoreTeam( Team* team, Bool restoring )
+void Object::setOrRestoreTeam( Team* team, Bool restoring, Bool objectXferLoad )
 {
 	// don't do anything if the team hasn't changed
 	if( m_team == team )
@@ -915,7 +915,7 @@ void Object::setOrRestoreTeam( Team* team, Bool restoring )
 		if (m_team->isInList_TeamMemberList(this))
 		{
 			m_team->removeFrom_TeamMemberList(this);
-			m_team->getControllingPlayer()->becomingTeamMember(this, false);
+			m_team->getControllingPlayer()->becomingTeamMember(this, false, objectXferLoad);
 		}
 	}
 
@@ -928,7 +928,7 @@ void Object::setOrRestoreTeam( Team* team, Bool restoring )
 		if (!m_team->isInList_TeamMemberList(this))
 		{
 			m_team->prependTo_TeamMemberList(this);
-			m_team->getControllingPlayer()->becomingTeamMember(this, true);
+			m_team->getControllingPlayer()->becomingTeamMember(this, true, objectXferLoad);
 		}
 
 		// now, adjust the attitude of the unit to its new team.
@@ -4264,7 +4264,7 @@ void Object::xfer( Xfer *xfer )
 			throw SC_INVALID_DATA;
 		}
 		const Bool restoring = true;
-		setOrRestoreTeam( team, restoring );
+		setOrRestoreTeam( team, restoring, true );
 	}
 
 	// special model condition until
