@@ -1026,6 +1026,17 @@ void Player::becomingTeamMember(Object *obj, Bool yes)
 		obj->friend_adjustPowerForPlayer(yes);
 	}
 
+	if (obj->isKindOf(KINDOF_DOZER)
+			&& obj->getAIUpdateInterface()
+			&& obj->getAIUpdateInterface()->isIdle())
+	{
+		// Need to remove it from the pick a peasant button
+		if (yes)
+			TheInGameUI->addIdleWorker(obj);
+		else
+			TheInGameUI->removeIdleWorker(obj, getPlayerIndex());
+	}
+
 	// when we capture a building, we need to see if there's an AutoDepositUpdate hooked to it,
 	// if so, award the cash bonus
 	if(this != ThePlayerList->getNeutralPlayer() && yes)
@@ -1049,18 +1060,6 @@ void Player::becomingTeamMember(Object *obj, Bool yes)
 			//We are leaving a team with active battle plans so remove them now.
 			removeBattlePlanBonusesForObject( obj );
 		}
-	}
-
-
-	if (obj->isKindOf(KINDOF_DOZER)
-			&& obj->getAIUpdateInterface()
-			&& obj->getAIUpdateInterface()->isIdle())
-	{
-		// Need to remove it from the pick a peasant button
-		if (yes)
-			TheInGameUI->addIdleWorker(obj);
-		else
-			TheInGameUI->removeIdleWorker(obj, getPlayerIndex());
 	}
 }
 
