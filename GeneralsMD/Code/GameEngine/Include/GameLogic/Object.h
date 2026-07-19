@@ -639,7 +639,7 @@ public:
 
 protected:
 
-	void setOrRestoreTeam( Team* team, Bool restoring, Bool objectXferLoad = false );
+	void setOrRestoreTeam( Team* team, Bool restoring );
 
 	void onDisabledEdge(Bool becomingDisabled);
 	// All of our cheating for radars and power go here.
