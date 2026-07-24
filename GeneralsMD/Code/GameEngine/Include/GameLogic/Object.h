@@ -453,7 +453,7 @@ public:
 	const Object* getEnclosingContainedBy() const; ///< Find the first enclosing container in the containment chain.
 	const Object* getOuterObject() const; ///< Get the top-level object
 
-#if RETAIL_COMPATIBLE_CRC
+#if RTS_ZEROHOUR && RETAIL_COMPATIBLE_CRC
 	void friend_setContainedByID(ObjectID id) { m_containedByID = id; }
 #endif
 
