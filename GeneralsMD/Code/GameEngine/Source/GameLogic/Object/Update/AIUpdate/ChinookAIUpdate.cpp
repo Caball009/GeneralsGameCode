@@ -1135,7 +1135,7 @@ UpdateSleepTime ChinookAIUpdate::update()
 #if RETAIL_COMPATIBLE_CRC
 		setAirfieldForHealing(INVALID_ID);
 #else
-		if (m_airfieldForHealing != INVALID_ID && m_flightStatus != CHINOOK_LANDING)
+		if (m_flightStatus != CHINOOK_LANDING)
 		{
 			setAirfieldForHealing(INVALID_ID);
 		}
