@@ -228,6 +228,14 @@ public:
 		Object* obj = getMachineOwner();
 		ChinookAIUpdate* ai = (ChinookAIUpdate*)obj->getAIUpdateInterface();
 
+#if !RETAIL_COMPATIBLE_CRC
+		if (m_landing && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
+		{
+			ai->setAirfieldForHealing(INVALID_ID);
+			return STATE_FAILURE;
+		}
+#endif
+
 		ai->friend_setFlightStatus(m_landing ? CHINOOK_LANDING : CHINOOK_TAKING_OFF);
 
 		if( m_landing )
@@ -287,6 +295,14 @@ public:
 			return STATE_FAILURE;
 
 		ChinookAIUpdate* ai = (ChinookAIUpdate*)obj->getAIUpdateInterface();
+
+#if !RETAIL_COMPATIBLE_CRC
+		if (m_landing && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
+		{
+			ai->setAirfieldForHealing(INVALID_ID);
+			return STATE_FAILURE;
+		}
+#endif
 
 		ai->setLocomotorGoalPositionExplicit(m_destLoc);
 
@@ -1116,7 +1132,14 @@ UpdateSleepTime ChinookAIUpdate::update()
 	}
 	else
 	{
+#if RETAIL_COMPATIBLE_CRC
 		setAirfieldForHealing(INVALID_ID);
+#else
+		if (m_airfieldForHealing != INVALID_ID && m_flightStatus != CHINOOK_LANDING)
+		{
+			setAirfieldForHealing(INVALID_ID);
+		}
+#endif
 	}
 
 

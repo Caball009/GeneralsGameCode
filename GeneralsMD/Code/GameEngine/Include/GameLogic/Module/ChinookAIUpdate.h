@@ -109,6 +109,9 @@ public:
 
 	virtual Int getUpgradedSupplyBoost() const override;
 
+	void setAirfieldForHealing(ObjectID id);
+	ObjectID getAirfieldForHealing() const { return m_airfieldForHealing; }
+
 protected:
 
 	virtual AIStateMachine* makeStateMachine() override;
@@ -129,7 +132,6 @@ protected:
 private:
 
 	void setMyState( StateID cmd, Object* target, const Coord3D* pos, CommandSourceType cmdSource );
-	void setAirfieldForHealing(ObjectID id);
 
 	AICommandParmsStorage		m_pendingCommand;
 	ChinookFlightStatus			m_flightStatus;
