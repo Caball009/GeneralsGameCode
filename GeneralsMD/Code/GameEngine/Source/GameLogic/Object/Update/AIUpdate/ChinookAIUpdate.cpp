@@ -193,6 +193,10 @@ class ChinookTakeoffOrLandingState : public State
 private:
 	Coord3D		m_destLoc;
 	Bool			m_landing;
+//#if !RETAIL_COMPATIBLE_XFER_SAVE
+#if RETAIL_COMPATIBLE_XFER_SAVE
+	Bool      m_evacuating;
+#endif
 
 protected:
 	// snapshot interface
@@ -201,15 +205,33 @@ protected:
 		// empty
 	}
 
+	// ------------------------------------------------------------------------------------------------
+	/** Xfer Method
+	* Version Info;
+	* 1: Initial version
+	* 2: TheSuperHackers @tweak Store evacuation variable to indicate whether this state is used for evacuation
+	*/
+	// ------------------------------------------------------------------------------------------------
 	virtual void xfer( Xfer *xfer ) override
 	{
 		// version
+#if RETAIL_COMPATIBLE_XFER_SAVE
 		XferVersion currentVersion = 1;
+#else
+		XferVersion currentVersion = 2;
+#endif
 		XferVersion version = currentVersion;
 		xfer->xferVersion( &version, currentVersion );
 
 		xfer->xferCoord3D(&m_destLoc);
 		xfer->xferBool(&m_landing);
+
+#if !RETAIL_COMPATIBLE_XFER_SAVE
+		if (currentVersion >= 2)
+		{
+			xfer->xferBool(&m_evacuating);
+		}
+#endif
 	}
 
 	virtual void loadPostProcess() override
@@ -218,7 +240,10 @@ protected:
 	}
 
 public:
-	ChinookTakeoffOrLandingState( StateMachine *machine, Bool landing ) : m_landing(landing), State( machine, "ChinookTakeoffOrLandingState" )
+	ChinookTakeoffOrLandingState( StateMachine *machine, Bool landing, Bool evacuating ) :
+		State(machine, "ChinookTakeoffOrLandingState"),
+		m_landing(landing),
+		m_evacuating(evacuating)
 	{
 		m_destLoc.zero();
 	}
@@ -229,10 +254,13 @@ public:
 		ChinookAIUpdate* ai = (ChinookAIUpdate*)obj->getAIUpdateInterface();
 
 #if !RETAIL_COMPATIBLE_CRC
-		if (m_landing && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
+		if (m_landing && !m_evacuating && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
 		{
-			ai->setAirfieldForHealing(INVALID_ID);
-			return STATE_FAILURE;
+			const ContainModuleInterface* contain = obj->getContain();
+			const Bool waitingToEnterOrExit = contain && contain->hasObjectsWantingToEnterOrExit();
+
+			if (!waitingToEnterOrExit)
+				return STATE_FAILURE;
 		}
 #endif
 
@@ -297,10 +325,13 @@ public:
 		ChinookAIUpdate* ai = (ChinookAIUpdate*)obj->getAIUpdateInterface();
 
 #if !RETAIL_COMPATIBLE_CRC
-		if (m_landing && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
+		if (m_landing && !m_evacuating && !TheGameLogic->findObjectByID(ai->getAirfieldForHealing()))
 		{
-			ai->setAirfieldForHealing(INVALID_ID);
-			return STATE_FAILURE;
+			const ContainModuleInterface* contain = obj->getContain();
+			const Bool waitingToEnterOrExit = contain && contain->hasObjectsWantingToEnterOrExit();
+
+			if (!waitingToEnterOrExit)
+				return STATE_FAILURE;
 		}
 #endif
 
@@ -864,22 +895,22 @@ public:
 //-------------------------------------------------------------------------------------------------
 ChinookAIStateMachine::ChinookAIStateMachine(Object *owner, AsciiString name) : AIStateMachine(owner, name)
 {
-	defineState( TAKING_OFF, newInstance(ChinookTakeoffOrLandingState)( this, false ), AI_IDLE, AI_IDLE );
-	defineState( LANDING, newInstance(ChinookTakeoffOrLandingState)( this, true ), AI_IDLE, AI_IDLE );
+	defineState( TAKING_OFF, newInstance(ChinookTakeoffOrLandingState)( this, false, false ), AI_IDLE, AI_IDLE );
+	defineState( LANDING, newInstance(ChinookTakeoffOrLandingState)( this, true, false ), AI_IDLE, AI_IDLE );
 	defineState( MOVE_TO_COMBAT_DROP, newInstance(ChinookMoveToBldgState)( this ), DO_COMBAT_DROP, AI_IDLE );
 	defineState( DO_COMBAT_DROP, newInstance(ChinookCombatDropState)( this ), AI_IDLE, AI_IDLE );
 
 	defineState( MOVE_TO_AND_LAND, newInstance(AIMoveToState)( this ), LANDING, AI_IDLE );
 
 	defineState( MOVE_TO_AND_EVAC, newInstance(AIMoveToState)( this ), LAND_AND_EVAC, AI_IDLE );
-	defineState( LAND_AND_EVAC, newInstance(ChinookTakeoffOrLandingState)( this, true ), EVAC_AND_TAKEOFF, AI_IDLE );
+	defineState( LAND_AND_EVAC, newInstance(ChinookTakeoffOrLandingState)( this, true, true ), EVAC_AND_TAKEOFF, AI_IDLE );
 	defineState( EVAC_AND_TAKEOFF, newInstance(ChinookEvacuateState)( this ), TAKING_OFF, AI_IDLE );
 
 	defineState( MOVE_TO_AND_EVAC_AND_EXIT_INIT, newInstance(ChinookRecordCreationState)( this ), MOVE_TO_AND_EVAC_AND_EXIT, AI_IDLE );
 	defineState( MOVE_TO_AND_EVAC_AND_EXIT, newInstance(AIMoveToState)( this ), LAND_AND_EVAC_AND_EXIT, AI_IDLE );
-	defineState( LAND_AND_EVAC_AND_EXIT, newInstance(ChinookTakeoffOrLandingState)( this, true ), EVAC_AND_EXIT, AI_IDLE );
+	defineState( LAND_AND_EVAC_AND_EXIT, newInstance(ChinookTakeoffOrLandingState)( this, true, true ), EVAC_AND_EXIT, AI_IDLE );
 	defineState( EVAC_AND_EXIT, newInstance(ChinookEvacuateState)( this ), TAKEOFF_AND_EXIT, AI_IDLE );
-	defineState( TAKEOFF_AND_EXIT, newInstance(ChinookTakeoffOrLandingState)( this, false ), HEAD_OFF_MAP, AI_IDLE );
+	defineState( TAKEOFF_AND_EXIT, newInstance(ChinookTakeoffOrLandingState)( this, false, false ), HEAD_OFF_MAP, AI_IDLE );
 	defineState( HEAD_OFF_MAP, newInstance(ChinookHeadOffMapState)( this ), AI_IDLE, AI_IDLE );
 }
 
