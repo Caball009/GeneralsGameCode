@@ -384,7 +384,7 @@ public:
 	Bool hasSingleUseCommandBeenUsed() const { return m_singleUseCommandUsed; }
 
 	/// returns true iff the object can run over the other object.
-	Bool canCrushOrSquish(Object *otherObj, CrushSquishTestType testType = TEST_CRUSH_OR_SQUISH) const;
+	Bool canCrushOrSquish(const Object *otherObj, CrushSquishTestType testType = TEST_CRUSH_OR_SQUISH) const;
 	UnsignedByte getCrusherLevel() const;
 	UnsignedByte getCrushableLevel() const;
 

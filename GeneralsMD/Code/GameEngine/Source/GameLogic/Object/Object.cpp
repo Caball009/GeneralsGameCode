@@ -1158,7 +1158,7 @@ void Object::setScriptStatus( ObjectScriptStatusBit bit, Bool set )
 }
 
 //=============================================================================
-Bool Object::canCrushOrSquish(Object *otherObj, CrushSquishTestType testType ) const
+Bool Object::canCrushOrSquish(const Object *otherObj, CrushSquishTestType testType ) const
 {
 	DEBUG_ASSERTCRASH(this, ("null this in canCrushOrSquish"));
 

@@ -1322,7 +1322,7 @@ Bool Pathfinder::checkForMovement(const Object *obj, TCheckMovementInfo &info)
 				continue;
 			}
 
-			/*const*/ Object *unit = TheGameLogic->findObjectByID(posUnitID);
+			const Object *unit = TheGameLogic->findObjectByID(posUnitID);
 			if (!unit) {
 				continue;
 			}
