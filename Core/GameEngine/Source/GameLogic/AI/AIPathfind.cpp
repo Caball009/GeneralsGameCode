@@ -1270,20 +1270,22 @@ Bool Pathfinder::checkForMovement(const Object *obj, TCheckMovementInfo &info)
 		return true;
 	}
 
+	const ObjectID objID = obj->getID();
+	const AIUpdateInterface* objAI = obj->getAIUpdateInterface();
+	const ObjectID ignoreId = objAI ? objAI->getIgnoredObstacleID() : INVALID_ID;
+	const Int numCellsAbove = info.radius + (info.centerInCell ? 1 : 0);
+
+#ifdef INFANTRY_MOVES_THROUGH_INFANTRY
+	const Bool isInfantry = obj->isKindOf(KINDOF_INFANTRY);
+#endif
+
 #if RTS_GENERALS && RETAIL_COMPATIBLE_PATHFINDING
 	const Int maxAlly = 5;
 	ObjectID allies[maxAlly];
 	Int numAlly = 0;
 #endif
 
-#ifdef INFANTRY_MOVES_THROUGH_INFANTRY
-	const Bool isInfantry = obj->isKindOf(KINDOF_INFANTRY);
-#endif
-
-	const ObjectID objID = obj->getID();
-	const AIUpdateInterface* objAI = obj->getAIUpdateInterface();
-	const ObjectID ignoreId = objAI ? objAI->getIgnoredObstacleID() : INVALID_ID;
-	const Int numCellsAbove = info.radius + (info.centerInCell ? 1 : 0);
+	Bool allyMoving = false;
 
 	for (Int i = info.cell.x - info.radius; i < info.cell.x + numCellsAbove; ++i) {
 		for (Int j = info.cell.y - info.radius; j < info.cell.y + numCellsAbove; ++j) {
@@ -1305,7 +1307,7 @@ Bool Pathfinder::checkForMovement(const Object *obj, TCheckMovementInfo &info)
 				info.allyGoal = true;
 				FALLTHROUGH;
 			case PathfindCell::UNIT_PRESENT_MOVING:
-				if (!info.considerTransient && info.allyMoving) {
+				if (allyMoving) {
 					continue;
 				}
 
@@ -1335,6 +1337,9 @@ Bool Pathfinder::checkForMovement(const Object *obj, TCheckMovementInfo &info)
 				}
 
 				if (!info.considerTransient) {
+					if (info.allyMoving) {
+						allyMoving = true;
+					}
 					continue;
 				}
 			}
